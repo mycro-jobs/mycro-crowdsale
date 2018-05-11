@@ -1,0 +1,27 @@
+{
+  "name": "crowdsale-template-v2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/Perseverance/crowdsale-template-v2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/Perseverance/crowdsale-template-v2/issues"
+  },
+  "homepage": "https://gitlab.com/Perseverance/crowdsale-template-v2#README",
+  "dependencies": {
+    "solc": "^0.4.23",
+    "truffle-hdwallet-provider-privkey": "^0.2.0",
+    "zeppelin-solidity": "^1.9.0"
+  }
+}
