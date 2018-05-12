@@ -1,4 +1,4 @@
-var RefundableBasicCrowdsale = artifacts.require("RefundableBasicCrowdsale");
+var UnpausableBasicCrowdsale = artifacts.require("UnpausableBasicCrowdsale");
 var ICOToken = artifacts.require("ICOToken");
 
 function getFutureTimestamp(plusMinutes) {
@@ -29,9 +29,10 @@ module.exports = async function (deployer, network, accounts) {
 
 	await deployer.deploy(ICOToken);
 	let tokenInstance = await ICOToken.deployed();
+	tokenInstance.pause();
 
-	await deployer.deploy(RefundableBasicCrowdsale, 100, _wallet, tokenInstance.address, _startTime, _endTime, _cap, _goal);
-	const crowdsaleInstance = await RefundableBasicCrowdsale.deployed();
+	await deployer.deploy(UnpausableBasicCrowdsale, 100, _wallet, tokenInstance.address, _startTime, _endTime, _cap, _goal);
+	const crowdsaleInstance = await UnpausableBasicCrowdsale.deployed();
 
 	await tokenInstance.transferOwnership(accounts[0]);
 
