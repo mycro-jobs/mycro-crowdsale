@@ -1,4 +1,4 @@
-var BasicCrowdsale = artifacts.require("BasicCrowdsale");
+var WhitelistedBasicCrowdsale = artifacts.require("WhitelistedBasicCrowdsale");
 var ICOToken = artifacts.require("ICOToken");
 
 function getFutureTimestamp(plusMinutes) {
@@ -29,8 +29,8 @@ module.exports = async function (deployer, network, accounts) {
   await deployer.deploy(ICOToken);
   let tokenInstance = await ICOToken.deployed();
 
-  await deployer.deploy(BasicCrowdsale, _defaultRate, _wallet, tokenInstance.address, _startTime, _endTime, _cap);
-  const crowdsaleInstance = await BasicCrowdsale.deployed();
+  await deployer.deploy(WhitelistedBasicCrowdsale, 100, _wallet, tokenInstance.address, _startTime, _endTime, _cap);
+  const crowdsaleInstance = await WhitelistedBasicCrowdsale.deployed();
 
   await tokenInstance.transferOwnership(accounts[0]);
 
