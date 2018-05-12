@@ -29,6 +29,9 @@ module.exports = async function (deployer, network, accounts) {
   await deployer.deploy(ICOToken);
   let tokenInstance = await ICOToken.deployed();
 
+	// Have to extend UnpausableFinaliszableCrowdsale which finalization() unpaused token
+	tokenInstance.pause();
+
   await deployer.deploy(WhitelistedBasicCrowdsale, 100, _wallet, tokenInstance.address, _startTime, _endTime, _cap);
   const crowdsaleInstance = await WhitelistedBasicCrowdsale.deployed();
 
