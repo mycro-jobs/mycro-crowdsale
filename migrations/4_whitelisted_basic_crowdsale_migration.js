@@ -33,6 +33,6 @@ module.exports = async function (deployer, network, accounts) {
 	const crowdsaleInstance = await WhitelistedBasicCrowdsale.deployed();
 
 	await tokenInstance.transferOwnership(crowdsaleInstance.address);
-	await crowdsaleInstance.transferOwnership(accounts[0]);
+	(isDevNetwork) ? await crowdsaleInstance.transferOwnership(accounts[0]) : await crowdsaleInstance.transferOwnership(_wallet);
 
 };
