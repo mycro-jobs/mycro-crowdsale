@@ -8,19 +8,58 @@ import "zeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.
 
 contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale, CappedCrowdsale {
 
-  
-  constructor(uint256 _rate, address _wallet, address _token, uint256 _openingTime, uint256 _closingTime, uint256 _cap) 
-    Crowdsale(_rate, _wallet, ERC20(_token)) 
-    TimedCrowdsale(_openingTime, _closingTime) 
+    uint256 constant BONUS_1_CAP = 10 ether;
+    uint256 constant BONUS_1_RATE = 300;
+    uint256 constant BONUS_1_BONUS_RATE = 500;
+    uint256 constant BONUS_1_DURATION = 7 days;
+
+    uint256 constant BONUS_2_CAP = 30 ether;
+    uint256 constant BONUS_2_RATE = 150;
+    uint256 constant BONUS_2_BONUS_RATE = 200;
+    uint256 constant BONUS_2_DURATION = BONUS_1_DURATION + 7 days;
+
+    constructor(uint256 _rate, address _wallet, address _token, uint256 _openingTime, uint256 _closingTime, uint256 _cap)
+    Crowdsale(_rate, _wallet, ERC20(_token))
+    TimedCrowdsale(_openingTime, _closingTime)
     CappedCrowdsale(_cap) public {
-  }
+    }
 
-  function _getTokenAmount(uint256 _weiAmount) internal view returns (uint256) {
-	  // TODO place the logic for token generation periods and bonuses
-  }
+    function buyTokens(address beneficiary) public payable {
+        // Min amount 0.01 ETH
+        uint256 minContributionAmount = 10000000000000000;
+        require(msg.value >= minContributionAmount);
+        super.buyTokens(beneficiary);
+    }
 
-  function finalization() internal {
-    MintableToken(token).transferOwnership(owner);
-    super.finalization();
-  }
+    function getRate() internal constant returns (uint256) {
+
+        // First Bonus Period
+        if (now < (openingTime + BONUS_1_DURATION)) {
+            if (weiRaised < BONUS_1_CAP) {
+                return BONUS_1_BONUS_RATE;
+            }
+            return BONUS_1_RATE;
+        }
+
+        //Second Bonus Period
+        if (now < (openingTime + (BONUS_2_DURATION))) {
+            if (weiRaised < BONUS_2_CAP) {
+                return BONUS_2_BONUS_RATE;
+            }
+            return BONUS_2_RATE;
+        }
+
+        // Default Period
+        return rate;
+    }
+
+    function _getTokenAmount(uint256 _weiAmount) internal view returns (uint256) {
+        uint256 _rate = getRate();
+        return _weiAmount.mul(_rate);
+    }
+
+    function finalization() internal {
+        MintableToken(token).transferOwnership(owner);
+        super.finalization();
+    }
 }
