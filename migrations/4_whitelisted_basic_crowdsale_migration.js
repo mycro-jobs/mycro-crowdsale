@@ -32,6 +32,7 @@ module.exports = async function (deployer, network, accounts) {
 	await deployer.deploy(WhitelistedBasicCrowdsale, 100, _wallet, tokenInstance.address, _startTime, _endTime, _cap);
 	const crowdsaleInstance = await WhitelistedBasicCrowdsale.deployed();
 
-	await tokenInstance.transferOwnership(accounts[0]);
+	await tokenInstance.transferOwnership(crowdsaleInstance);
+	await crowdsaleInstance.transferOwnership(accounts[0]);
 
 };
