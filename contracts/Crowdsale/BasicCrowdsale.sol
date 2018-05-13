@@ -8,6 +8,8 @@ import "zeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.
 
 contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale, CappedCrowdsale {
 
+    uint256 constant MIN_CONTRIBUTION_AMOUNT = 10 finney;
+
     uint256 constant BONUS_1_CAP = 10 ether;
     uint256 constant BONUS_1_RATE = 300;
     uint256 constant BONUS_1_BONUS_RATE = 500;
@@ -27,9 +29,7 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale, CappedCrowdsal
     }
 
     function buyTokens(address beneficiary) public payable {
-        // Min amount 0.01 ETH
-        uint256 minContributionAmount = 10000000000000000;
-        require(msg.value >= minContributionAmount);
+        require(msg.value >= MIN_CONTRIBUTION_AMOUNT);
         super.buyTokens(beneficiary);
     }
 
