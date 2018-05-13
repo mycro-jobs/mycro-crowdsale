@@ -7,8 +7,9 @@ import "zeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.
 contract UnpausableFinalizableCrowdsale is FinalizableCrowdsale {
 
     function finalization() internal {
-        if (ICOToken(token).paused()) {
-            ICOToken(token).unpause();
+        ICOToken _token = ICOToken(token);
+        if (_token.paused()) {
+            _token.unpause();
         }
         super.finalization();
     }
