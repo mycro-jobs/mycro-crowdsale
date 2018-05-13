@@ -93,6 +93,8 @@ contract('BasicCrowdsale', function (accounts) {
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, _cap, {
 				from: _owner
 			});
+
+			tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
 		});
 
 		it("should create the correct token", async function () {
@@ -107,7 +109,7 @@ contract('BasicCrowdsale', function (accounts) {
 
 		it("should create the token owned by the crowdsale", async function () {
 			let owner = await tokenInstance.owner.call();
-			assert.equal(owner, crowdsaleInstance.address, "The token was with the crowdsale as owner");
+			assert.equal(owner, basicCrowdsaleInstance.address, "The token was with the crowdsale as owner");
 		});
 
 
