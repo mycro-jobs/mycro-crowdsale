@@ -18,6 +18,8 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale, CappedCrowdsal
     uint256 constant BONUS_2_BONUS_RATE = 200;
     uint256 constant BONUS_2_DURATION = BONUS_1_DURATION + 7 days;
 
+    event LogBountyTokenMinted(address minter, address beneficiary, uint256 amount);
+
     constructor(uint256 _rate, address _wallet, address _token, uint256 _openingTime, uint256 _closingTime, uint256 _cap)
     Crowdsale(_rate, _wallet, ERC20(_token))
     TimedCrowdsale(_openingTime, _closingTime)
@@ -56,6 +58,13 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale, CappedCrowdsal
     function _getTokenAmount(uint256 _weiAmount) internal view returns (uint256) {
         uint256 _rate = getRate();
         return _weiAmount.mul(_rate);
+    }
+
+    function createBountyToken(address beneficiary, uint256 amount) public onlyOwner returns (bool) {
+        require(!hasClosed());
+        MintableToken(token).mint(beneficiary, amount);
+        LogBountyTokenMinted(msg.sender, beneficiary, amount);
+        return true;
     }
 
     function finalization() internal {
