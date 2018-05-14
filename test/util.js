@@ -4,7 +4,6 @@ const util = {
 			let result = await promise;
 			console.log(result);
 		} catch (error) {
-			console.log(error);
 			const invalidJump = error.message.search('invalid JUMP') >= 0;
 			const invalidOpcode = error.message.search('invalid opcode') >= 0;
 			const outOfGas = error.message.search('out of gas') >= 0;
