@@ -114,114 +114,115 @@ contract('BasicCrowdsale', function (accounts) {
 
 
 	});
-	//
-	// describe("testing crowdsale periods", () => {
-	// 	let tokenInstance;
-	//
-	// 	beforeEach(async function () {
-	//
-	// 		_startTime = web3FutureTime(web3);
-	// 		_endTime = _startTime + nintyDays;
-	//
-	// 		crowdsaleInstance = await ICOCrowdsale.new(_startTime, _endTime, _defaultRate, _wallet, {
-	// 			from: _owner
-	// 		});
-	//
-	// 		let tokenAddress = await crowdsaleInstance.token.call();
-	//
-	// 		tokenInstance = ICOToken.at(tokenAddress);
-	//
-	// 	})
-	//
-	// 	it("should throw on wei below min amount", async function () {
-	// 		const weiSent = minWeiAmount / 2;
-	// 		await expectThrow(crowdsaleInstance.buyTokens(_wallet, {
-	// 			value: weiSent,
-	// 			from: _wallet
-	// 		}))
-	//
-	// 	})
-	//
-	// 	it("should convert to first period bonus rate", async function () {
-	// 		await timeTravel(web3, _firstPeriod.TIME * 0.75);
-	// 		const weiSent = 1 * weiInEther;
-	// 		await crowdsaleInstance.buyTokens(_wallet, {
-	// 			value: weiSent,
-	// 			from: _wallet
-	// 		})
-	//
-	// 		let balance = await tokenInstance.balanceOf.call(_wallet);
-	//
-	// 		assert(balance.eq(weiSent * _firstPeriod.BONUS_RATE), "The balance was not correct based on the first period bonus rate and weiSent");
-	// 	})
-	//
-	// 	it("should convert to first period default rate after cap", async function () {
-	// 		await timeTravel(web3, _firstPeriod.TIME * 0.75);
-	//
-	// 		const reachTheCap = (_firstPeriod.CAP) + 1;
-	// 		await crowdsaleInstance.buyTokens(_wallet, {
-	// 			value: reachTheCap,
-	// 			from: _wallet
-	// 		})
-	//
-	// 		const weiSent = minWeiAmount;
-	// 		await crowdsaleInstance.buyTokens(_owner, {
-	// 			value: weiSent,
-	// 			from: _owner
-	// 		})
-	//
-	// 		let balance = await tokenInstance.balanceOf.call(_owner);
-	//
-	// 		assert(balance.eq(weiSent * _firstPeriod.NORMAL_RATE), "The balance was not correct based on the first normal bonus rate and weiSent");
-	// 	})
-	//
-	// 	it("should convert to second period bonus rate", async function () {
-	// 		await timeTravel(web3, _secondPeriod.TIME * 0.75);
-	// 		const weiSent = 1 * weiInEther;
-	// 		await crowdsaleInstance.buyTokens(_wallet, {
-	// 			value: weiSent,
-	// 			from: _wallet
-	// 		})
-	//
-	// 		let balance = await tokenInstance.balanceOf.call(_wallet);
-	//
-	// 		assert(balance.eq(weiSent * _secondPeriod.BONUS_RATE), "The balance was not correct based on the second period bonus rate and weiSent");
-	// 	})
-	//
-	// 	it("should convert to second period default rate after cap", async function () {
-	// 		await timeTravel(web3, _secondPeriod.TIME * 0.75);
-	//
-	// 		const reachTheCap = (_secondPeriod.CAP) + 1;
-	// 		await crowdsaleInstance.buyTokens(_wallet, {
-	// 			value: reachTheCap,
-	// 			from: _wallet
-	// 		})
-	//
-	// 		const weiSent = minWeiAmount;
-	// 		await crowdsaleInstance.buyTokens(_owner, {
-	// 			value: weiSent,
-	// 			from: _owner
-	// 		})
-	//
-	// 		let balance = await tokenInstance.balanceOf.call(_owner);
-	//
-	// 		assert(balance.eq(weiSent * _secondPeriod.NORMAL_RATE), "The balance was not correct based on the first normal bonus rate and weiSent");
-	// 	})
-	//
-	// 	it("should convert to  default rate", async function () {
-	// 		await timeTravel(web3, thirtyDays);
-	// 		const weiSent = 1 * weiInEther;
-	// 		await crowdsaleInstance.buyTokens(_wallet, {
-	// 			value: weiSent,
-	// 			from: _wallet
-	// 		})
-	//
-	// 		let balance = await tokenInstance.balanceOf.call(_wallet);
-	//
-	// 		assert(balance.eq(weiSent * _defaultRate), "The balance was not correct based on the default rate and weiSent");
-	// 	})
-	//
-	// })
+
+	describe("testing crowdsale periods", () => {
+		let tokenInstance;
+
+		beforeEach(async function () {
+
+			_openingTime = web3FutureTime(web3);
+			_closingTime = _openingTime + nintyDays;
+
+			tokenInstance = await ICOToken.new({
+				from: _owner
+			});
+
+			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, _cap, {
+				from: _owner
+			});
+
+			tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
+		});
+
+		it("should throw on wei below min amount", async function () {
+			const weiSent = minWeiAmount * 2;
+			await expectThrow(basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: weiSent,
+				from: _wallet
+			}));
+
+		});
+
+		// it("should convert to first period bonus rate", async function () {
+		// 	await timeTravel(web3, _firstPeriod.TIME * 0.75);
+		// 	const weiSent = 1 * weiInEther;
+		// 	await crowdsaleInstance.buyTokens(_wallet, {
+		// 		value: weiSent,
+		// 		from: _wallet
+		// 	})
+		//
+		// 	let balance = await tokenInstance.balanceOf.call(_wallet);
+		//
+		// 	assert(balance.eq(weiSent * _firstPeriod.BONUS_RATE), "The balance was not correct based on the first period bonus rate and weiSent");
+		// })
+		//
+		// it("should convert to first period default rate after cap", async function () {
+		// 	await timeTravel(web3, _firstPeriod.TIME * 0.75);
+		//
+		// 	const reachTheCap = (_firstPeriod.CAP) + 1;
+		// 	await crowdsaleInstance.buyTokens(_wallet, {
+		// 		value: reachTheCap,
+		// 		from: _wallet
+		// 	})
+		//
+		// 	const weiSent = minWeiAmount;
+		// 	await crowdsaleInstance.buyTokens(_owner, {
+		// 		value: weiSent,
+		// 		from: _owner
+		// 	})
+		//
+		// 	let balance = await tokenInstance.balanceOf.call(_owner);
+		//
+		// 	assert(balance.eq(weiSent * _firstPeriod.NORMAL_RATE), "The balance was not correct based on the first normal bonus rate and weiSent");
+		// })
+		//
+		// it("should convert to second period bonus rate", async function () {
+		// 	await timeTravel(web3, _secondPeriod.TIME * 0.75);
+		// 	const weiSent = 1 * weiInEther;
+		// 	await crowdsaleInstance.buyTokens(_wallet, {
+		// 		value: weiSent,
+		// 		from: _wallet
+		// 	})
+		//
+		// 	let balance = await tokenInstance.balanceOf.call(_wallet);
+		//
+		// 	assert(balance.eq(weiSent * _secondPeriod.BONUS_RATE), "The balance was not correct based on the second period bonus rate and weiSent");
+		// })
+		//
+		// it("should convert to second period default rate after cap", async function () {
+		// 	await timeTravel(web3, _secondPeriod.TIME * 0.75);
+		//
+		// 	const reachTheCap = (_secondPeriod.CAP) + 1;
+		// 	await crowdsaleInstance.buyTokens(_wallet, {
+		// 		value: reachTheCap,
+		// 		from: _wallet
+		// 	})
+		//
+		// 	const weiSent = minWeiAmount;
+		// 	await crowdsaleInstance.buyTokens(_owner, {
+		// 		value: weiSent,
+		// 		from: _owner
+		// 	})
+		//
+		// 	let balance = await tokenInstance.balanceOf.call(_owner);
+		//
+		// 	assert(balance.eq(weiSent * _secondPeriod.NORMAL_RATE), "The balance was not correct based on the first normal bonus rate and weiSent");
+		// })
+		//
+		// it("should convert to  default rate", async function () {
+		// 	await timeTravel(web3, thirtyDays);
+		// 	const weiSent = 1 * weiInEther;
+		// 	await crowdsaleInstance.buyTokens(_wallet, {
+		// 		value: weiSent,
+		// 		from: _wallet
+		// 	})
+		//
+		// 	let balance = await tokenInstance.balanceOf.call(_wallet);
+		//
+		// 	assert(balance.eq(weiSent * _defaultRate), "The balance was not correct based on the default rate and weiSent");
+		// })
+
+	})
 	//
 	// describe("bounty token", () => {
 	// 	let tokenInstance;
