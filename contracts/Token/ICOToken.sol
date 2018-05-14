@@ -2,7 +2,7 @@ pragma solidity ^0.4.23;
 
 
 import "zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
-import "zeppelin-solidity/contracts/lifecycle/Pausable.sol";
+import "zeppelin-solidity/contracts/token/ERC20/PausableToken.sol";
 
 
 /**
