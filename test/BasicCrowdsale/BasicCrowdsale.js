@@ -15,8 +15,6 @@ contract('BasicCrowdsale', function (accounts) {
 
 	const _owner = accounts[0];
 	const _alice = accounts[1];
-	const _bob = accounts[2];
-	const _carol = accounts[3];
 	const _notOwner = accounts[8];
 	const _wallet = accounts[9];
 
@@ -160,7 +158,7 @@ contract('BasicCrowdsale', function (accounts) {
 		it("should convert to first period default rate after cap", async function () {
 			await timeTravel(web3, _firstPeriod.TIME * 0.75);
 
-			const reachTheCap = (_firstPeriod.CAP) + (weiInEther);
+			const reachTheCap = (_firstPeriod.CAP) + weiInEther;
 			await basicCrowdsaleInstance.buyTokens(_wallet, {
 				value: reachTheCap,
 				from: _wallet
@@ -179,56 +177,53 @@ contract('BasicCrowdsale', function (accounts) {
 			assert(balance.eq(weiSent * _firstPeriod.NORMAL_RATE), "The balance was not correct based on the first normal bonus rate and weiSent");
 		});
 
-		// ToDo: Throw with error Error: Error: sender doesn't have enough funds to send tx. The upfront cost is: 672197500000000000 and the sender's account only has: 669133400000000000
-		// it("should convert to second period bonus rate", async function () {
-		// 	await timeTravel(web3, _secondPeriod.TIME * 0.75);
-		// 	const weiSent = 1 * weiInEther;
-		// 	await basicCrowdsaleInstance.buyTokens(_wallet, {
-		// 		value: weiSent,
-		// 		from: _wallet
-		// 	})
-		//
-		// 	let balance = await tokenInstance.balanceOf.call(_wallet);
-		//
-		// 	assert(balance.eq(weiSent * _secondPeriod.BONUS_RATE), "The balance was not correct based on the second period bonus rate and weiSent");
-		// });
+		it("should convert to second period bonus rate", async function () {
+			await timeTravel(web3, _secondPeriod.TIME * 0.75);
+			const weiSent = weiInEther;
+			await basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: weiSent,
+				from: _wallet
+			});
 
-		// ToDo: Throw with error Error: Error: sender doesn't have enough funds to send tx. The upfront cost is: 672197500000000000 and the sender's account only has: 669133400000000000
-		// it("should convert to second period default rate after cap", async function () {
-		// 	await timeTravel(web3, _secondPeriod.TIME * 0.75);
-		//
-		// 	const reachTheCap = (_secondPeriod.CAP) + 1;
-		// 	await basicCrowdsaleInstance.buyTokens(_wallet, {
-		// 		value: reachTheCap,
-		// 		from: _wallet
-		// 	});
-		//
-		// 	const weiSent = minWeiAmount;
-		// 	await basicCrowdsaleInstance.buyTokens(_owner, {
-		// 		value: weiSent,
-		// 		from: _owner
-		// 	});
-		//
-		// 	let balance = await tokenInstance.balanceOf.call(_owner);
-		//
-		// 	assert(balance.eq(weiSent * _secondPeriod.NORMAL_RATE), "The balance was not correct based on the first normal bonus rate and weiSent");
-		// });
+			let balance = await tokenInstance.balanceOf.call(_wallet);
 
-		// ToDo: Throw with error Error: Error: sender doesn't have enough funds to send tx. The upfront cost is: 672197500000000000 and the sender's account only has: 669133400000000000
-		// it("should convert to  default rate", async function () {
-		// 	await timeTravel(web3, thirtyDays);
-		// 	const weiSent = 1 * weiInEther;
-		// 	await basicCrowdsaleInstance.buyTokens(_wallet, {
-		// 		value: weiSent,
-		// 		from: _wallet
-		// 	});
-		//
-		// 	let balance = await tokenInstance.balanceOf.call(_wallet);
-		//
-		// 	assert(balance.eq(weiSent * _defaultRate), "The balance was not correct based on the default rate and weiSent");
-		// });
+			assert(balance.eq(weiSent * _secondPeriod.BONUS_RATE), "The balance was not correct based on the second period bonus rate and weiSent");
+		});
 
-	})
+		it("should convert to second period default rate after cap", async function () {
+			await timeTravel(web3, _secondPeriod.TIME * 0.75);
+
+			const reachTheCap = (_secondPeriod.CAP) + weiInEther;
+			await basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: reachTheCap,
+				from: _wallet
+			});
+
+			const weiSent = minWeiAmount;
+			await basicCrowdsaleInstance.buyTokens(_owner, {
+				value: weiSent,
+				from: _owner
+			});
+
+			let balance = await tokenInstance.balanceOf.call(_owner);
+
+			assert(balance.eq(weiSent * _secondPeriod.NORMAL_RATE), "The balance was not correct based on the first normal bonus rate and weiSent");
+		});
+
+		it("should convert to  default rate", async function () {
+			await timeTravel(web3, thirtyDays);
+			const weiSent = 1 * weiInEther;
+			await basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: weiSent,
+				from: _wallet
+			});
+
+			let balance = await tokenInstance.balanceOf.call(_wallet);
+
+			assert(balance.eq(weiSent * _defaultRate), "The balance was not correct based on the default rate and weiSent");
+		});
+
+	});
 
 	describe("bounty token", () => {
 		let tokenInstance;
@@ -251,43 +246,40 @@ contract('BasicCrowdsale', function (accounts) {
 
 		});
 
-		// ToDo: Throw with error Error: Error: sender doesn't have enough funds to send tx. The upfront cost is: 672197500000000000 and the sender's account only has: 669133400000000000
-		// it("create bounty tokens", async function () {
-		//
-		// 	const bonusTokens = 500 * weiInEther;
-		//
-		// 	basicCrowdsaleInstance.createBountyToken(_alice, bonusTokens, {
-		// 		from: _owner
-		// 	});
-		//
-		// 	let balance = await tokenInstance.balanceOf.call(_alice);
-		//
-		// 	assert(balance.eq(bonusTokens), "The balance was not correct based on bounty tokens");
-		//
-		// });
+		it("create bounty tokens", async function () {
 
-		// ToDo: Throw with error Error: Error: sender doesn't have enough funds to send tx. The upfront cost is: 672197500000000000 and the sender's account only has: 669133400000000000
-		// it("should throw if non owner trying to create bounty", async function () {
-		// 	const bonusTokens = 500 * weiInEther;
-		//
-		// 	await expectThrow(basicCrowdsaleInstance.createBountyToken(_alice, bonusTokens, {
-		// 		from: _notOwner
-		// 	}));
-		//
-		// });
+			const bonusTokens = 500 * weiInEther;
 
-		// ToDo: Throw with error Error: Error: sender doesn't have enough funds to send tx. The upfront cost is: 672197500000000000 and the sender's account only has: 669133400000000000
-		// it("should emit event on change", async function () {
-		//
-		// 	const expectedEvent = 'LogBountyTokenMinted';
-		//
-		// 	const bonusTokens = 500 * weiInEther;
-		// 	let result = await basicCrowdsaleInstance.createBountyToken(_alice, bonusTokens, {
-		// 		from: _owner
-		// 	});
-		// 	assert.lengthOf(result.logs, 1, "There should be 1 event emitted from setRate!");
-		// 	assert.strictEqual(result.logs[0].event, expectedEvent, `The event emitted was ${result.logs[0].event} instead of ${expectedEvent}`);
-		// });
+			await basicCrowdsaleInstance.createBountyToken(_alice, bonusTokens, {
+				from: _owner
+			});
+
+			let balance = await tokenInstance.balanceOf.call(_alice);
+
+			assert(balance.eq(bonusTokens), "The balance was not correct based on bounty tokens");
+
+		});
+
+		it("should throw if non owner trying to create bounty", async function () {
+			const bonusTokens = 500 * weiInEther;
+
+			await expectThrow(basicCrowdsaleInstance.createBountyToken(_alice, bonusTokens, {
+				from: _notOwner
+			}));
+
+		});
+
+		it("should emit event on change", async function () {
+
+			const expectedEvent = 'LogBountyTokenMinted';
+
+			const bonusTokens = 500 * weiInEther;
+			let result = await basicCrowdsaleInstance.createBountyToken(_alice, bonusTokens, {
+				from: _owner
+			});
+			assert.lengthOf(result.logs, 1, "There should be 1 event emitted from setRate!");
+			assert.strictEqual(result.logs[0].event, expectedEvent, `The event emitted was ${result.logs[0].event} instead of ${expectedEvent}`);
+		});
 
 
 	});
@@ -318,16 +310,15 @@ contract('BasicCrowdsale', function (accounts) {
 
 		});
 
-		// ToDo: Throw with error Error: Error: sender doesn't have enough funds to send tx. The upfront cost is: 672197500000000000 and the sender's account only has: 669133400000000000
-		// it("should transfer ownership of the token correctly on time finish", async function () {
-		// 	let initialOwner = await tokenInstance.owner.call();
-		// 	await timeTravel(web3, nintyDays);
-		// 	await basicCrowdsaleInstance.finalize();
-		// 	let afterOwner = await tokenInstance.owner.call();
-		//
-		// 	assert(initialOwner != afterOwner, "The owner has not changed");
-		// 	assert.equal(afterOwner, _owner, "The owner was not set to the crowdsale owner");
-		// });
+		it("should transfer ownership of the token correctly on time finish", async function () {
+			let initialOwner = await tokenInstance.owner.call();
+			await timeTravel(web3, nintyDays);
+			await basicCrowdsaleInstance.finalize();
+			let afterOwner = await tokenInstance.owner.call();
+
+			assert(initialOwner != afterOwner, "The owner has not changed");
+			assert.equal(afterOwner, _owner, "The owner was not set to the crowdsale owner");
+		});
 
 	})
 
