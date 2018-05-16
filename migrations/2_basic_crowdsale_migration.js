@@ -24,7 +24,7 @@ module.exports = async function (deployer, network, accounts) {
 	const _wallet = '0x795EFF09B1FE788DC7e6824AA5221aD893Fd465A';
 
 	const weiInEther = 1000000000000000000;
-	const _cap = 4 * weiInEther;
+	const _cap = 100 * weiInEther;
 
 	await deployer.deploy(ICOToken);
 	let tokenInstance = await ICOToken.deployed();
