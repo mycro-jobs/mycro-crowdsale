@@ -8,9 +8,11 @@ contract UnpausableFinalizableCrowdsale is FinalizableCrowdsale {
 
     function finalization() internal {
         ICOToken _token = ICOToken(token);
+
         if (_token.paused()) {
             _token.unpause();
         }
+
         super.finalization();
     }
 }
