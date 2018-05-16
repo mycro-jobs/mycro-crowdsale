@@ -45,7 +45,6 @@ contract('BasicCrowdsale', function (accounts) {
 	describe("initializing crowsale", () => {
 
 		it("should set initial values correctly", async function () {
-			await timeTravel(web3, day);
 			_openingTime = web3FutureTime(web3);
 			_closingTime = _openingTime + nintyDays;
 
