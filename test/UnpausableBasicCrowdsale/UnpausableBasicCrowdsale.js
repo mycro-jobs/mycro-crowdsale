@@ -22,7 +22,41 @@ contract('UnpausableBasicCrowdsale', function (accounts) {
 	const _defaultRate = 100;
 	const _cap = 100 * weiInEther;
 
-	describe("Testing finalization function with paused token", () => {
+	describe("initializing crowdsale", () => {
+
+		it("should set initial values correctly", async function () {
+			_openingTime = web3FutureTime(web3);
+			_closingTime = _openingTime + nintyDays;
+
+			tokenInstance = await ICOToken.new({
+				from: _owner
+			});
+			unpausableBasicCrowdsaleInstance = await UnpausableBasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, _cap, {
+				from: _owner
+			});
+
+			await tokenInstance.transferOwnership(unpausableBasicCrowdsaleInstance.address);
+
+			let openingTime = await unpausableBasicCrowdsaleInstance.openingTime.call();
+			let closingTime = await unpausableBasicCrowdsaleInstance.closingTime.call();
+			let wallet = await unpausableBasicCrowdsaleInstance.wallet.call();
+			let rate = await unpausableBasicCrowdsaleInstance.rate.call();
+			let cap = await unpausableBasicCrowdsaleInstance.cap.call();
+
+			assert(openingTime.eq(_openingTime), "The start time is incorrect");
+			assert(closingTime.eq(_closingTime), "The end time is incorrect");
+			assert(rate.eq(_defaultRate), "The rate is incorrect");
+			assert(cap.eq(_cap), "The rate is incorrect");
+			assert.strictEqual(wallet, _wallet, "The start time is incorrect");
+
+			let token = await unpausableBasicCrowdsaleInstance.token.call();
+			assert(token.length > 0, "Token length is 0");
+			assert(token != "0x0");
+		});
+
+	});
+
+	describe("testing finalization function with paused token", () => {
 
 		beforeEach(async function () {
 
