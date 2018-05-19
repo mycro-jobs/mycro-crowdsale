@@ -4,8 +4,7 @@ const web3FutureTime = require('../util').web3FutureTime;
 const timeTravel = require('../util').timeTravel;
 const ether = require('../util').ether;
 const expectThrow = require('../util').expectThrow;
-
-const BigNumber = web3.BigNumber;
+const BN = require('bn.js');
 
 contract('WhitelistedRefundableCrowdsale', function (accounts) {
 
@@ -13,8 +12,6 @@ contract('WhitelistedRefundableCrowdsale', function (accounts) {
 	let whitelistedRefundableCrowdsaleInstance;
 	let _openingTime;
 	let _closingTime;
-
-	const weiInEther = 1000000000000000000;
 
 	const _owner = accounts[0];
 	const _authorized = accounts[1];
@@ -26,12 +23,13 @@ contract('WhitelistedRefundableCrowdsale', function (accounts) {
 	const day = 24 * 60 * 60;
 	const nintyDays = 90 * day;
 
+	const weiInEther = 1000000000000000000;
+
 	const _defaultRate = 100;
 	const _goal = ether(50);
 	const _cap = ether(100);
 
 	const value = ether(42);
-	const tokenSupply = new BigNumber('1e22');
 
 	describe("initializing crowdsale", () => {
 
@@ -89,9 +87,14 @@ contract('WhitelistedRefundableCrowdsale', function (accounts) {
 		});
 
 		it('should accept payments to whitelisted (from whichever buyers)', async function () {
-			await whitelistedRefundableCrowdsaleInstance.buyTokens(_authorized, { value: weiInEther, from: _authorized });
+			const balanceBeforeFirstBuy = await tokenInstance.balanceOf.call(_authorized);
+			await whitelistedRefundableCrowdsaleInstance.buyTokens(_authorized, { value: ether(1), from: _authorized });
+			const balanceAfterFirstBuy = await tokenInstance.balanceOf.call(_authorized);
 			await whitelistedRefundableCrowdsaleInstance.buyTokens(_authorized, { value: value, from: _unauthorized });
-			// ToDo: What to asset in this test?
+			const balanceAfterSecondBuy = await tokenInstance.balanceOf.call(_authorized);
+
+			assert(balanceAfterFirstBuy.gt(balanceBeforeFirstBuy), 'Incorrect balance after buy token');
+			assert(balanceAfterSecondBuy.gt(balanceAfterFirstBuy), 'Incorrect balance after buy token');
 		});
 
 		it('should reject payments to not whitelisted', async function () {
@@ -131,11 +134,24 @@ contract('WhitelistedRefundableCrowdsale', function (accounts) {
 		});
 
 		it('should accept payments to whitelisted (from whichever buyers)', async function () {
-			await whitelistedRefundableCrowdsaleInstance.buyTokens(_anotherAuthorized, { value: weiInEther, from: _anotherAuthorized });
-			await whitelistedRefundableCrowdsaleInstance.buyTokens(_anotherAuthorized, { value: weiInEther, from: _unauthorized });
-			await whitelistedRefundableCrowdsaleInstance.buyTokens(_anotherAuthorized2, { value: weiInEther, from: _anotherAuthorized });
-			await whitelistedRefundableCrowdsaleInstance.buyTokens(_anotherAuthorized2, { value: weiInEther, from: _unauthorized });
-			// ToDo: What to asset in this test?
+			const balanceBeforeFirstBuy = await tokenInstance.balanceOf.call(_anotherAuthorized);
+			await whitelistedRefundableCrowdsaleInstance.buyTokens(_anotherAuthorized, { value: ether(1), from: _anotherAuthorized });
+			const balanceAfterFirstBuy = await tokenInstance.balanceOf.call(_anotherAuthorized);
+
+			await whitelistedRefundableCrowdsaleInstance.buyTokens(_anotherAuthorized, { value: ether(1), from: _unauthorized });
+			const balanceAfterSecondBuy = await tokenInstance.balanceOf.call(_anotherAuthorized);
+
+			const balanceBeforeFirstBuy2 = await tokenInstance.balanceOf.call(_anotherAuthorized2);
+			await whitelistedRefundableCrowdsaleInstance.buyTokens(_anotherAuthorized2, { value: ether(1), from: _anotherAuthorized });
+			const balanceAfterFirstBuy2 = await tokenInstance.balanceOf.call(_anotherAuthorized2);
+
+			await whitelistedRefundableCrowdsaleInstance.buyTokens(_anotherAuthorized2, { value: ether(1), from: _unauthorized });
+			const balanceAfterSecondBuy2 = await tokenInstance.balanceOf.call(_anotherAuthorized2);
+
+			assert(balanceAfterFirstBuy.gt(balanceBeforeFirstBuy), 'Incorrect balance after buy token');
+			assert(balanceAfterSecondBuy.gt(balanceAfterFirstBuy), 'Incorrect balance after buy token');
+			assert(balanceAfterFirstBuy2.gt(balanceBeforeFirstBuy2), 'Incorrect balance after buy token');
+			assert(balanceAfterSecondBuy2.gt(balanceAfterFirstBuy2), 'Incorrect balance after buy token');
 		});
 
 		it('should reject payments to addresses removed from whitelist', async function () {
@@ -185,12 +201,15 @@ contract('WhitelistedRefundableCrowdsale', function (accounts) {
 
 		it('should allow refunds after end if goal was not reached', async function () {
 			await timeTravel(web3, day);
-			await whitelistedRefundableCrowdsaleInstance.buyTokens(_authorized, { value: weiInEther, from: _wallet });
+			await whitelistedRefundableCrowdsaleInstance.buyTokens(_authorized, { value: ether(1), from: _wallet });
 
 			await timeTravel(web3, nintyDays);
 			await whitelistedRefundableCrowdsaleInstance.finalize();
+			const balanceBeforeClaimRefund = await web3.eth.getBalance(_wallet);
 			await whitelistedRefundableCrowdsaleInstance.claimRefund({ from: _wallet });
-			// ToDo: What to asset in this test?
+			const balanceAfterClaimRefund = await web3.eth.getBalance(_wallet);
+
+			assert(balanceAfterClaimRefund.gt(balanceBeforeClaimRefund), 'Claim refund failed');
 		});
 
 		it('should deny refunds after end if goal was reached', async function () {
@@ -209,15 +228,13 @@ contract('WhitelistedRefundableCrowdsale', function (accounts) {
 
 			await timeTravel(web3, nintyDays);
 
-			const pre = web3.eth.getBalance(_wallet);
+			const pre = await web3.eth.getBalance(_wallet);
 			await whitelistedRefundableCrowdsaleInstance.finalize();
-			const post = web3.eth.getBalance(_wallet);
+			const post = await web3.eth.getBalance(_wallet);
 
-			const goalBN = new BigNumber(_goal);
-			const balanceDiffBN = post.minus(pre);
+			const balanceDiff = post.sub(pre);
 
-			// ToDo: Compare big numbers
-			// assert(goalBN.strictEqual(balanceDiffBN, 'Funds didnt send to wallet'));
+			assert(_goal.eq(balanceDiff), 'Funds did not send to wallet');
 		});
 
 	});
