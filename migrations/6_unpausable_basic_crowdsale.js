@@ -28,7 +28,7 @@ module.exports = async function (deployer, network, accounts) {
 
 	await deployer.deploy(ICOToken);
 	let tokenInstance = await ICOToken.deployed();
-	tokenInstance.pause();
+	await tokenInstance.pause();
 
 	await deployer.deploy(UnpausableBasicCrowdsale, 100, _wallet, tokenInstance.address, _startTime, _endTime, _cap);
 	const crowdsaleInstance = await UnpausableBasicCrowdsale.deployed();
