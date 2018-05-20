@@ -33,7 +33,7 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale, CappedCrowdsal
         super.buyTokens(beneficiary);
     }
 
-    function getRate() internal constant returns (uint256) {
+    function getRate() public constant returns (uint256) {
 
         // First Bonus Period
         if (now < (openingTime + BONUS_1_DURATION)) {

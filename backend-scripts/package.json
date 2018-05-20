@@ -1,0 +1,19 @@
+{
+  "name": "depo-scripts",
+  "version": "1.0.0",
+  "description": "Depository network backend scripts, to later be implemented in the kyc system",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/limelabs/crowdsale-template-v2"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ethers": "^3.0.15"
+  }
+}
