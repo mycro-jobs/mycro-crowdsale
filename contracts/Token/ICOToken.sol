@@ -1,8 +1,9 @@
 pragma solidity ^0.4.23;
 
-
 import "zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
 import "zeppelin-solidity/contracts/token/ERC20/PausableToken.sol";
+import "zeppelin-solidity/contracts/token/ERC20/BurnableToken.sol";
+
 
 
 /**
@@ -10,10 +11,10 @@ import "zeppelin-solidity/contracts/token/ERC20/PausableToken.sol";
  * @dev Very simple ERC20 Token example.
  * `StandardToken` functions.
  */
-contract ICOToken is MintableToken, PausableToken {
+contract ICOToken is MintableToken, PausableToken, BurnableToken {
 
-    string public constant name = "ICO Token";
-    string public constant symbol = "ICO";
+    string public constant name = "Mycro Token";
+    string public constant symbol = "MYO";
     uint8 public constant decimals = 18;
 
 

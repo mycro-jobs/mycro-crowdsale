@@ -1,7 +1,7 @@
 const config = require('./config.json');
 const ethers = require('ethers');
 
-const WhitelistedRefundableCrowdsaleAbi = require('./contracts-abi/WhitelistedRefundableCrowdsale.json').abi;
+const WhitelistedBasicCrowdsaleAbi = require('./contracts-abi/WhitelistedBasicCrowdsale.json').abi;
 const ICOTokenAbi = require('./contracts-abi/ICOToken.json').abi;
 
 // Setup Ethers provider from configs
@@ -16,32 +16,32 @@ function getNodeProvider() {
 }
 
 // Initiate contracts with nodeProvider
-let WhitelistedRefundableCrowdsaleContract = new ethers.Contract(
-	config.blockchain.whitelisted_refundable_crowdsale_contract_address, WhitelistedRefundableCrowdsaleAbi, nodeProvider);
+let WhitelistedBasicCrowdsaleContract = new ethers.Contract(
+	config.blockchain.whitelisted_basic_crowdsale_contract_address, WhitelistedBasicCrowdsaleAbi, nodeProvider);
 
 const ICOTokenContract = async function () {
-	let tokenAddress = await WhitelistedRefundableCrowdsaleContract.token();
+	let tokenAddress = await WhitelistedBasicCrowdsaleContract.token();
 	return new ethers.Contract(tokenAddress, ICOTokenAbi, nodeProvider);
 };
 
 // Initiate contracts with wallets
-const WhitelistedRefundableCrowdsaleContractWithWallet = function (wallet) {
+const WhitelistedBasicCrowdsaleContractWithWallet = function (wallet) {
 	wallet.provider = nodeProvider;
 
-	return new ethers.Contract(config.blockchain.whitelisted_refundable_crowdsale_contract_address, WhitelistedRefundableCrowdsaleAbi, wallet);
+	return new ethers.Contract(config.blockchain.whitelisted_basic_crowdsale_contract_address, WhitelistedBasicCrowdsaleAbi, wallet);
 };
 
 const ICOTokenContractWithWallet = async function (wallet) {
 	wallet.provider = nodeProvider;
-	let tokenAddress = await WhitelistedRefundableCrowdsaleContract.token();
+	let tokenAddress = await WhitelistedBasicCrowdsaleContract.token();
 
 	return new ethers.Contract(tokenAddress, ICOTokenAbi, wallet);
 };
 
 module.exports = {
 	nodeProvider,
-	WhitelistedRefundableCrowdsaleContract,
-	WhitelistedRefundableCrowdsaleContractWithWallet,
+	WhitelistedBasicCrowdsaleContract,
+	WhitelistedBasicCrowdsaleContractWithWallet,
 	ICOTokenContract,
 	ICOTokenContractWithWallet
 };

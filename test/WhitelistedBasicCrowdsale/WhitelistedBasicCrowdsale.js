@@ -15,16 +15,16 @@ contract('WhitelistedBasicCrowdsale', function (accounts) {
 	const _wallet = accounts[9];
 
 	const day = 24 * 60 * 60;
-	const nintyDays = 90 * day;
+	const allDays = 102 * day;
 
-	const _defaultRate = 100;
-	const _cap = 100 * weiInEther;
+	const _defaultRate = 500;
+	const _cap = 5000 * weiInEther;
 
 	describe("initializing crowdsale", () => {
 
 		it("should set initial values correctly", async function () {
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + nintyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -34,7 +34,6 @@ contract('WhitelistedBasicCrowdsale', function (accounts) {
 			});
 
 			await tokenInstance.transferOwnership(whitelistedBasicCrowdsaleInstance.address);
-
 			let openingTime = await whitelistedBasicCrowdsaleInstance.openingTime.call();
 			let closingTime = await whitelistedBasicCrowdsaleInstance.closingTime.call();
 			let wallet = await whitelistedBasicCrowdsaleInstance.wallet.call();
