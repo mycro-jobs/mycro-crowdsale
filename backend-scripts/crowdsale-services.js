@@ -66,6 +66,9 @@ class CrowdsaleService {
 
 		const result = [];
 
+		let defaultRate = await WhitelistedBasicCrowdsaleContract.rate();
+		let rate = defaultRate.toString();
+
 		for(const log of logs) {
 			const block = await nodeProvider.getBlock(log.blockHash)
 			const logData = LogTokenPurchase.parse(log.topics, log.data)
@@ -76,7 +79,7 @@ class CrowdsaleService {
 
 			let weiSent = logData.value.toString();
 			let tokens = logData.amount.toString();
-			let bonusTokens = logData.amount - logData.value*500;
+			let bonusTokens = logData.amount - logData.value*rate;
 
 			result.push({eventTime: block.timestamp, beneficiary: logData.beneficiary,
 				weiSent: weiSent, tokens: tokens, bonusTokens: bonusTokens})

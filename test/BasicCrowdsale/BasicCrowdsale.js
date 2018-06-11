@@ -40,25 +40,25 @@ contract('BasicCrowdsale', function (accounts) {
 	const _firstPeriod = {
 		TIME: _presalePeriod.TIME + fourteenDays,
 		RATE: 200,
-		CAP: 2000 * weiInEther
+		CAP: _presalePeriod.CAP + 2000 * weiInEther
 	};
 
 	const _secondPeriod = {
 		TIME: _firstPeriod.TIME + fourteenDays,
 		RATE: 300,
-		CAP: 30000 * weiInEther
+		CAP: _firstPeriod.CAP + 30000 * weiInEther
 	};
 
 	const _thirdPeriod = {
 		TIME: _secondPeriod.TIME + fourteenDays,
 		RATE: 400,
-		CAP: 40000 * weiInEther
+		CAP: _secondPeriod.CAP + 40000 * weiInEther
 	};
 
 	const _forthPeriod = {
 		TIME: _thirdPeriod.TIME + fiftyDays,
 		RATE: 500,
-		CAP: 5000
+		CAP: _thirdPeriod.CAP + 5000
 	};
 
 	describe("initializing crowsale", () => {
@@ -173,6 +173,22 @@ contract('BasicCrowdsale', function (accounts) {
 			assert(balance.eq(weiSent * _presalePeriod.RATE), "The balance was not correct based on the first period bonus rate and weiSent");
 		});
 
+		it("should throw if presale cap is reached", async function () {
+			await timeTravel(web3, _presalePeriod.TIME * 0.75);
+
+			await basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: _presalePeriod.CAP,
+				from: _wallet
+			});
+
+			const weiSent = 1 * weiInEther;
+
+			await expectThrow(basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: weiSent,
+				from: _wallet
+			}));
+		});
+
 		it("should convert to first period bonus rate", async function () {
 			await timeTravel(web3, _firstPeriod.TIME * 0.75);
 			const weiSent = 1 * weiInEther;
@@ -184,6 +200,22 @@ contract('BasicCrowdsale', function (accounts) {
 			let balance = await tokenInstance.balanceOf.call(_wallet);
 
 			assert(balance.eq(weiSent * _firstPeriod.RATE), "The balance was not correct based on the first period bonus rate and weiSent");
+		});
+
+		it("should throw if first period cap is reached", async function () {
+			await timeTravel(web3, _presalePeriod.TIME * 0.75);
+
+			await basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: _firstPeriod.CAP,
+				from: _wallet
+			});
+
+			const weiSent = 1 * weiInEther;
+
+			await expectThrow(basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: weiSent,
+				from: _wallet
+			}));
 		});
 
 		it("should convert to second period bonus rate", async function () {
@@ -199,6 +231,22 @@ contract('BasicCrowdsale', function (accounts) {
 			assert(balance.eq(weiSent * _secondPeriod.RATE), "The balance was not correct based on the second period bonus rate and weiSent");
 		});
 
+		it("should throw if second period cap is reached", async function () {
+			await timeTravel(web3, _secondPeriod.TIME * 0.75);
+
+			await basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: _secondPeriod.CAP,
+				from: _wallet
+			});
+
+			const weiSent = 1 * weiInEther;
+
+			await expectThrow(basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: weiSent,
+				from: _wallet
+			}));
+		});
+
 		it("should convert to third period bonus rate", async function () {
 			await timeTravel(web3, _thirdPeriod.TIME * 0.75);
 			const weiSent = weiInEther;
@@ -210,6 +258,22 @@ contract('BasicCrowdsale', function (accounts) {
 			let balance = await tokenInstance.balanceOf.call(_wallet);
 
 			assert(balance.eq(weiSent * _thirdPeriod.RATE), "The balance was not correct based on the second period bonus rate and weiSent");
+		});
+
+		it("should throw if third period cap is reached", async function () {
+			await timeTravel(web3, _thirdPeriod.TIME * 0.75);
+
+			await basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: _thirdPeriod.CAP,
+				from: _wallet
+			});
+
+			const weiSent = 1 * weiInEther;
+
+			await expectThrow(basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: weiSent,
+				from: _wallet
+			}));
 		});
 
 

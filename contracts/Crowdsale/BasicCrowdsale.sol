@@ -15,19 +15,19 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale, CappedCrowdsal
     uint256 constant PRESALE_DURATION = 14 days;
 
 
-    uint256 constant BONUS_1_CAP = 2000 ether;
+    uint256 constant BONUS_1_CAP = PRESALE_CAP + 2000 ether;
     uint256 constant BONUS_1_RATE = 200;
     uint256 constant BONUS_1_DURATION = PRESALE_DURATION +10 days;
 
-    uint256 constant BONUS_2_CAP = 3000 ether;
+    uint256 constant BONUS_2_CAP = BONUS_1_CAP + 3000 ether;
     uint256 constant BONUS_2_RATE = 300;
     uint256 constant BONUS_2_DURATION = BONUS_1_DURATION + 14 days;
 
-    uint256 constant BONUS_3_CAP = 4000 ether;
+    uint256 constant BONUS_3_CAP = BONUS_2_CAP + 4000 ether;
     uint256 constant BONUS_3_RATE = 400;
     uint256 constant BONUS_3_DURATION = BONUS_2_DURATION + 14 days;
 
-    uint256 constant BONUS_4_CAP = 5000 ether;
+    uint256 constant BONUS_4_CAP = BONUS_3_CAP + 5000 ether;
     uint256 constant REGULAR_RATE = 500;
     uint256 constant FINALIZATION_TIME = BONUS_3_DURATION + 50 days;
 
@@ -48,21 +48,25 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale, CappedCrowdsal
 
         //Presale Period
         if(now < openingTime + PRESALE_DURATION){
+            require(weiRaised < PRESALE_CAP);
             return PRESALE_RATE;
         }
 
         // First Bonus Period
         if(now < openingTime + BONUS_1_DURATION) {
+            require(weiRaised < BONUS_1_CAP);
             return BONUS_1_RATE;
         }
 
         //Second Bonus Period
         if(now < openingTime + BONUS_2_DURATION) {
+            require(weiRaised < BONUS_2_CAP);
             return BONUS_2_RATE;
         }
 
         //Third Bonus Period
         if(now < openingTime + BONUS_3_DURATION) {
+            require(weiRaised < BONUS_3_CAP);
             return BONUS_3_RATE;
         }
 
