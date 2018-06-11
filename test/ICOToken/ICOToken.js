@@ -9,10 +9,10 @@ contract('ICOToken', function (accounts) {
 	const _owner = accounts[0];
 	const _notOwner = accounts[1];
 
-	const _name = "ICO Token";
+	const _name = "Mycro Token";
 	const _initialTotalSupply = 0;
 	const _decimals = 18;
-	const _symbol = "ICO";
+	const _symbol = "MYO";
 
 	describe("creating ICO token", () => {
 		beforeEach(async function () {

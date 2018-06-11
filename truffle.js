@@ -1,8 +1,8 @@
 var HDWalletProvider = require("truffle-hdwallet-provider-privkey");
-let testPrivateKey = '';
-let infuraRopsten = 'https://ropsten.infura.io/H4UAAWyThMPs2WB9LsHD ';
-let infuraRinkeby = 'https://rinkeby.infura.io/H4UAAWyThMPs2WB9LsHD';
-let infuraMainnet = 'https://mainnet.infura.io/H4UAAWyThMPs2WB9LsHD';
+let testPrivateKey = '9f42c9d8e753db56330ee67b91fdd7fd47f034862f1b96e83bc65acc2e2a463b';
+let infuraRopsten = 'https://ropsten.infura.io/XTIF9kIt1kgSOOKclKG0  ';
+let infuraRinkeby = 'https://rinkeby.infura.io/XTIF9kIt1kgSOOKclKG0 ';
+let infuraMainnet = 'https://mainnet.infura.io/XTIF9kIt1kgSOOKclKG0 ';
 
 module.exports = {
   networks: {
@@ -47,11 +47,11 @@ module.exports = {
       gas: 4000000
     }
   }
-  // ,
-  // solc: {
-  //   optimizer: {
-  //     enabled: true,
-  //     runs: 999
-  //   }
-  // }
+  ,
+  solc: {
+    optimizer: {
+      enabled: true,
+      runs: 999
+    }
+  }
 };
