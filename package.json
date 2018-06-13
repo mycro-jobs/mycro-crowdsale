@@ -21,6 +21,7 @@
   },
   "homepage": "https://gitlab.com/Perseverance/crowdsale-template-v2#README",
   "dependencies": {
+    "ethers": "^3.0.21",
     "solc": "^0.4.23",
     "truffle-hdwallet-provider-privkey": "^0.2.0",
     "zeppelin-solidity": "^1.9.0"
