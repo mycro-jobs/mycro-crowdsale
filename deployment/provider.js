@@ -27,11 +27,9 @@ run = async function() {
         }
         return new ethers.providers.InfuraProvider(config.network, config.infuraApikey);
     }
-
-    const privateKey = process.argv[2];
     
     let initWallet = async () => {
-        return new ethers.Wallet(privateKey, nodeProvider);
+        return new ethers.Wallet(process.argv[2], nodeProvider);
     }
     
     let wallet = await initWallet();
