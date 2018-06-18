@@ -20,52 +20,43 @@ contract('BasicCrowdsale', function (accounts) {
 
 	const day = 24 * 60 * 60;
 	const tenDays = 10 * day;
-	// const nintyDays = 90 * day;
-	// const thirtyDays = 30 * day;
-	const fiftyDays = 50 * day;
 	const fourteenDays = 14 * day;
-	// const sevenDays = 7 * day;
+	const fiftyDays = 50 * day;
 
 	const minWeiAmount = 0.01 * weiInEther;
 
-	const _defaultRate = 2894;
-	const _cap = 100000 * weiInEther;
+	const _defaultRate = 2000;
+	const _cap = 25000 * weiInEther;
 
 	const _presalePeriod = {
 		TIME: tenDays,
-		RATE: 3193,
-		CAP: 1000 * weiInEther
+		RATE: 2800,
+		CAP: 1250 * weiInEther
 	};
 
 	const _firstPeriod = {
 		TIME: _presalePeriod.TIME + fourteenDays,
-		RATE: 2927,
-		CAP: _presalePeriod.CAP + 2000 * weiInEther
+		RATE: 2400,
+		CAP: _presalePeriod.CAP + 7500 * weiInEther
 	};
 
 	const _secondPeriod = {
 		TIME: _firstPeriod.TIME + fourteenDays,
-		RATE: 2794,
-		CAP: _firstPeriod.CAP + 30000 * weiInEther
+		RATE: 2200,
+		CAP: _firstPeriod.CAP + 11250 * weiInEther
 	};
 
 	const _thirdPeriod = {
-		TIME: _secondPeriod.TIME + fourteenDays,
-		RATE: 2661,
-		CAP: _secondPeriod.CAP + 40000 * weiInEther
-	};
-
-	const _forthPeriod = {
-		TIME: _thirdPeriod.TIME + fiftyDays,
-		RATE: 2894,
-		CAP: _thirdPeriod.CAP + 5000
+		TIME: _secondPeriod.TIME + fiftyDays,
+		RATE: 2000,
+		CAP: _secondPeriod.CAP + 5000 * weiInEther
 	};
 
 	describe("initializing crowsale", () => {
 
 		it("should set initial values correctly", async function () {
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + _forthPeriod.TIME;
+			_closingTime = _openingTime + _thirdPeriod.TIME;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -100,7 +91,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + _forthPeriod.TIME;
+			_closingTime = _openingTime + _thirdPeriod.TIME;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -137,7 +128,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + _forthPeriod.TIME;
+			_closingTime = _openingTime + _thirdPeriod.TIME;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -247,38 +238,8 @@ contract('BasicCrowdsale', function (accounts) {
 			}));
 		});
 
-		it("should convert to third period bonus rate", async function () {
-			await timeTravel(web3, _thirdPeriod.TIME * 0.75);
-			const weiSent = weiInEther;
-			await basicCrowdsaleInstance.buyTokens(_wallet, {
-				value: weiSent,
-				from: _wallet
-			});
-
-			let balance = await tokenInstance.balanceOf.call(_wallet);
-
-			assert(balance.eq(weiSent * _thirdPeriod.RATE), "The balance was not correct based on the second period bonus rate and weiSent");
-		});
-
-		it("should throw if third period cap is reached", async function () {
-			await timeTravel(web3, _thirdPeriod.TIME * 0.75);
-
-			await basicCrowdsaleInstance.buyTokens(_wallet, {
-				value: _thirdPeriod.CAP,
-				from: _wallet
-			});
-
-			const weiSent = 1 * weiInEther;
-
-			await expectThrow(basicCrowdsaleInstance.buyTokens(_wallet, {
-				value: weiSent,
-				from: _wallet
-			}));
-		});
-
-
 		it("should convert to  default rate", async function () {
-			await timeTravel(web3, _forthPeriod.TIME * 0.75);
+			await timeTravel(web3, _thirdPeriod.TIME * 0.75);
 			const weiSent = 1 * weiInEther;
 			await basicCrowdsaleInstance.buyTokens(_wallet, {
 				value: weiSent,
@@ -298,7 +259,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + _forthPeriod.TIME;
+			_closingTime = _openingTime + _thirdPeriod.TIME;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -309,7 +270,7 @@ contract('BasicCrowdsale', function (accounts) {
 			});
 
 			await tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
-			await timeTravel(web3, _forthPeriod.TIME);
+			await timeTravel(web3, _thirdPeriod.TIME);
 
 		});
 
@@ -356,7 +317,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + _forthPeriod.TIME;
+			_closingTime = _openingTime + _thirdPeriod.TIME;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -379,7 +340,7 @@ contract('BasicCrowdsale', function (accounts) {
 
 		it("should transfer ownership of the token correctly on time finish", async function () {
 			let initialOwner = await tokenInstance.owner.call();
-			await timeTravel(web3, _forthPeriod.TIME);
+			await timeTravel(web3, _thirdPeriod.TIME);
 			await basicCrowdsaleInstance.finalize();
 			let afterOwner = await tokenInstance.owner.call();
 
@@ -389,7 +350,7 @@ contract('BasicCrowdsale', function (accounts) {
 
 		it("should be closed", async function () {
 			let before = await basicCrowdsaleInstance.isFinalized.call();
-			await timeTravel(web3, _forthPeriod.TIME);
+			await timeTravel(web3, _thirdPeriod.TIME);
 			await basicCrowdsaleInstance.finalize();
 
 			let after = await basicCrowdsaleInstance.isFinalized.call();
