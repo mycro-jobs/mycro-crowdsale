@@ -11,24 +11,24 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale, CappedCrowdsal
     uint256 constant MIN_CONTRIBUTION_AMOUNT = 10 finney;
 
     uint256 constant PRESALE_CAP = 1000 ether;
-    uint256 constant PRESALE_RATE = 100;
+    uint256 constant PRESALE_RATE = 3193;
     uint256 constant PRESALE_DURATION = 14 days;
 
 
     uint256 constant BONUS_1_CAP = PRESALE_CAP + 2000 ether;
-    uint256 constant BONUS_1_RATE = 200;
+    uint256 constant BONUS_1_RATE = 2927;
     uint256 constant BONUS_1_DURATION = PRESALE_DURATION +10 days;
 
     uint256 constant BONUS_2_CAP = BONUS_1_CAP + 3000 ether;
-    uint256 constant BONUS_2_RATE = 300;
+    uint256 constant BONUS_2_RATE = 2794;
     uint256 constant BONUS_2_DURATION = BONUS_1_DURATION + 14 days;
 
     uint256 constant BONUS_3_CAP = BONUS_2_CAP + 4000 ether;
-    uint256 constant BONUS_3_RATE = 400;
+    uint256 constant BONUS_3_RATE = 2661;
     uint256 constant BONUS_3_DURATION = BONUS_2_DURATION + 14 days;
 
     uint256 constant BONUS_4_CAP = BONUS_3_CAP + 5000 ether;
-    uint256 constant REGULAR_RATE = 500;
+    uint256 constant REGULAR_RATE = 2894;
     uint256 constant FINALIZATION_TIME = BONUS_3_DURATION + 50 days;
 
     event LogBountyTokenMinted(address minter, address beneficiary, uint256 amount);

@@ -28,36 +28,36 @@ contract('BasicCrowdsale', function (accounts) {
 
 	const minWeiAmount = 0.01 * weiInEther;
 
-	const _defaultRate = 500;
+	const _defaultRate = 2894;
 	const _cap = 100000 * weiInEther;
 
 	const _presalePeriod = {
 		TIME: tenDays,
-		RATE: 100,
+		RATE: 3193,
 		CAP: 1000 * weiInEther
 	};
 
 	const _firstPeriod = {
 		TIME: _presalePeriod.TIME + fourteenDays,
-		RATE: 200,
+		RATE: 2927,
 		CAP: _presalePeriod.CAP + 2000 * weiInEther
 	};
 
 	const _secondPeriod = {
 		TIME: _firstPeriod.TIME + fourteenDays,
-		RATE: 300,
+		RATE: 2794,
 		CAP: _firstPeriod.CAP + 30000 * weiInEther
 	};
 
 	const _thirdPeriod = {
 		TIME: _secondPeriod.TIME + fourteenDays,
-		RATE: 400,
+		RATE: 2661,
 		CAP: _secondPeriod.CAP + 40000 * weiInEther
 	};
 
 	const _forthPeriod = {
 		TIME: _thirdPeriod.TIME + fiftyDays,
-		RATE: 500,
+		RATE: 2894,
 		CAP: _thirdPeriod.CAP + 5000
 	};
 

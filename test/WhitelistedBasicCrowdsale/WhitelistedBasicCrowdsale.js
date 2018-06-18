@@ -17,7 +17,7 @@ contract('WhitelistedBasicCrowdsale', function (accounts) {
 	const day = 24 * 60 * 60;
 	const allDays = 102 * day;
 
-	const _defaultRate = 500;
+	const _defaultRate = 2894;
 	const _cap = 5000 * weiInEther;
 
 	describe("initializing crowdsale", () => {
