@@ -20,16 +20,16 @@ module.exports = async function (deployer, network, accounts) {
 	const nintyDaysInMinutes = 90 * 24 * 60;
 	const _startTime = (isDevNetwork) ? getWeb3FutureTimestamp(oneMinutes) : getFutureTimestamp(oneMinutes);
 	const _endTime = (isDevNetwork) ? getWeb3FutureTimestamp(nintyDaysInMinutes) : getFutureTimestamp(nintyDaysInMinutes);
-	const _defaultRate = 100;
+	const _defaultRate = 2000;
 	const _wallet = '0x2aB2829D8759775b0d2A4301f7692ED83561A30e';
 
 	const weiInEther = 1000000000000000000;
-	const _cap = 500 * weiInEther;
+	const _cap = 25000 * weiInEther;
 
 	await deployer.deploy(ICOToken);
 	let tokenInstance = await ICOToken.deployed();
 
-	await deployer.deploy(WhitelistedBasicCrowdsale, 100, _wallet, tokenInstance.address, _startTime, _endTime, _cap);
+	await deployer.deploy(WhitelistedBasicCrowdsale, _defaultRate, _wallet, tokenInstance.address, _startTime, _endTime, _cap);
 	const crowdsaleInstance = await WhitelistedBasicCrowdsale.deployed();
 
 	await tokenInstance.transferOwnership(crowdsaleInstance.address);
