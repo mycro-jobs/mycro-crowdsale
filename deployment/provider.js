@@ -9,10 +9,11 @@ const WhitelistedBasicCrowdsaleBytecode = require('./contracts-abi/WhitelistedBa
 const WhitelistedBasicCrowdsaleName = require('./contracts-abi/WhitelistedBasicCrowdsale.json').contractName;
 
 const nintyDaysInMinutes = 90 * 24 * 60;
-const _startTime = Date.now();
+let date = Date.now() /100 | 0;
+const _startTime = date + 60;
 const _endTime = _startTime + nintyDaysInMinutes;
 const _defaultRate = 500;
-const _wallet = '0xd9995bae12fee327256ffec1e3184d492bd94c31';
+const _wallet = '0xD3f98E0aDC62Bd5EEe94D79d77164043e86dcE5B';
 
 const weiInEther = 1000000000000000000;
 const _cap = "500000000000000000000";
@@ -24,11 +25,11 @@ run = async function() {
         if(config.network === "local"){
             return new ethers.providers.JsonRpcProvider("http://localhost:8545/");
         }
-        return new ethers.providers.InfuraProvider(ethers.providers.network[config.network], config.infuraApikey);
+        return new ethers.providers.InfuraProvider(config.network, config.infuraApikey);
     }
     
     let initWallet = async () => {
-        const privateKey = "0x7ab741b57e8d94dd7e1a29055646bafde7010f38a900f55bbd7647880faa6ee8";
+        const privateKey = "0x8d89639abd00f26fa916830784d8e291414a3bd9bdb5fcb4eb0a9fb9fa2087c1";
         return new ethers.Wallet(privateKey, nodeProvider);
     }
     
