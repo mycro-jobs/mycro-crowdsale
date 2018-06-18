@@ -15,8 +15,6 @@ const _endTime = _startTime + nintyDaysInMinutes;
 const _defaultRate = 500;
 const _wallet = '0xD3f98E0aDC62Bd5EEe94D79d77164043e86dcE5B';
 
-const privateKey = process.argv[2];
-
 const weiInEther = 1000000000000000000;
 const _cap = "500000000000000000000";
 
@@ -29,6 +27,8 @@ run = async function() {
         }
         return new ethers.providers.InfuraProvider(config.network, config.infuraApikey);
     }
+
+    const privateKey = process.argv[2];
     
     let initWallet = async () => {
         return new ethers.Wallet(privateKey, nodeProvider);
