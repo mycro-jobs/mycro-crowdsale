@@ -15,6 +15,8 @@ const _endTime = _startTime + nintyDaysInMinutes;
 const _defaultRate = 500;
 const _wallet = '0xD3f98E0aDC62Bd5EEe94D79d77164043e86dcE5B';
 
+const privateKey = process.argv[2];
+
 const weiInEther = 1000000000000000000;
 const _cap = "500000000000000000000";
 
@@ -29,7 +31,6 @@ run = async function() {
     }
     
     let initWallet = async () => {
-        const privateKey = "0x8d89639abd00f26fa916830784d8e291414a3bd9bdb5fcb4eb0a9fb9fa2087c1";
         return new ethers.Wallet(privateKey, nodeProvider);
     }
     
