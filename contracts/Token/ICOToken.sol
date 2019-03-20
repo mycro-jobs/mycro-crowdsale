@@ -5,7 +5,6 @@ import "zeppelin-solidity/contracts/token/ERC20/PausableToken.sol";
 import "zeppelin-solidity/contracts/token/ERC20/BurnableToken.sol";
 
 
-
 /**
  * @title ICOToken
  * @dev Very simple ERC20 Token example.

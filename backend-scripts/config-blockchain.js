@@ -1,4 +1,4 @@
-const config = require('./config.json');
+const config = require('../deployment/config.json');
 const ethers = require('ethers');
 
 const WhitelistedBasicCrowdsaleAbi = require('./contracts-abi/WhitelistedBasicCrowdsale.json').abi;
@@ -9,15 +9,15 @@ const providers = ethers.providers;
 const nodeProvider = getNodeProvider();
 
 function getNodeProvider() {
-	if (config.blockchain.network === 'local') {
+	if (config.network === 'local') {
 		return new providers.JsonRpcProvider("", providers.networks.unspecified);
 	}
-	return new providers.InfuraProvider(providers.networks[config.blockchain.network], config.blockchain.infura_api_key);
+	return new providers.InfuraProvider(providers.networks[config.network], config.infura_api_key);
 }
 
 // Initiate contracts with nodeProvider
 let WhitelistedBasicCrowdsaleContract = new ethers.Contract(
-	config.blockchain.whitelisted_basic_crowdsale_contract_address, WhitelistedBasicCrowdsaleAbi, nodeProvider);
+	config.whitelisted_basic_crowdsale_contract_address, WhitelistedBasicCrowdsaleAbi, nodeProvider);
 
 const ICOTokenContract = async function () {
 	let tokenAddress = await WhitelistedBasicCrowdsaleContract.token();
@@ -28,7 +28,7 @@ const ICOTokenContract = async function () {
 const WhitelistedBasicCrowdsaleContractWithWallet = function (wallet) {
 	wallet.provider = nodeProvider;
 
-	return new ethers.Contract(config.blockchain.whitelisted_basic_crowdsale_contract_address, WhitelistedBasicCrowdsaleAbi, wallet);
+	return new ethers.Contract(config.whitelisted_basic_crowdsale_contract_address, WhitelistedBasicCrowdsaleAbi, wallet);
 };
 
 const ICOTokenContractWithWallet = async function (wallet) {

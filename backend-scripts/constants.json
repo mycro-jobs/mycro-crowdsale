@@ -1,5 +1,10 @@
 {
-    "gasPrice": 2000000000,
+    "gasPrice": 20000000000,
     "maxArraysLength": 210,
-    "emptyBytes": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    "emptyBytes": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "privateKeyLength": 66,
+    "GAS_STATION_API": "https://ethgasstation.info/json/ethgasAPI.json",
+    "buyTokensGas": 1200000,
+    "sendMycroTokensGas": 30000,
+    "sendEth": 25000
 }
