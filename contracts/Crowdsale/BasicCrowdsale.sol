@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol";
 import "zeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
+import "contracts/Token/ICOToken.sol";
 
 
 contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
@@ -10,9 +11,11 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     uint256 public capForSale = 71000000 * (10 ** 18); // Total MYO tokens that could be sold during the ICO
     uint256 public bountyTokensCap = 5000000 * (10 ** 18); // Total number of MYO tokens that would be given as a reward
     uint256 public reservedForTeamTokens = 29000000 * (10 ** 18); // Tokens reserved for rewardpool, advisors and team that will be minted after Crowdsale
+
     uint256 public totalMintedBountyTokens; // Total number of MYO tokens given as a reward
 
     uint256 public privateSaleEndDate;
+
     mapping (address => bool) public minters;
 
     uint256 constant MIN_CONTRIBUTION_AMOUNT = 10 finney;
@@ -49,7 +52,6 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     constructor(uint256 _rate, address _wallet, address _token, uint256 _openingTime, uint256 _closingTime)
     Crowdsale(_rate, _wallet, ERC20(_token))
     TimedCrowdsale(_openingTime, _closingTime) public {
-        minters[owner] = true;
         privateSaleEndDate = _openingTime.add(PRIVATE_SALE_DURATION);
     }
 
@@ -188,6 +190,7 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
 
     // after finalization will be minted manually reservedForTeamTokens amount
     function finalization() internal {
+        ICOToken(token).unpause();
         MintableToken(token).transferOwnership(owner);
         super.finalization();
     }

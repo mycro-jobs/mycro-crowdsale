@@ -74,6 +74,9 @@ contract('BasicCrowdsale', function (accounts) {
 			tokenInstance = await ICOToken.new({
 				from: _owner
 			});
+
+			await tokenInstance.pause();
+
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, {
 				from: _owner
 			});
@@ -109,6 +112,8 @@ contract('BasicCrowdsale', function (accounts) {
 				from: _owner
 			});
 
+			await tokenInstance.pause()
+
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, {
 				from: _owner
 			});
@@ -121,9 +126,9 @@ contract('BasicCrowdsale', function (accounts) {
 			assert.equal(tokenSymbol, _symbol, "It has not created token with the correct symbol");
 		});
 
-		it("should create the token unpaused", async function () {
+		it("should create the token paused", async function () {
 			let paused = await tokenInstance.paused.call();
-			assert.isFalse(paused, "The token was created paused");
+			assert.isTrue(paused, "The token was created unpaused");
 		});
 
 		it("should create the token owned by the crowdsale", async function () {
@@ -145,11 +150,15 @@ contract('BasicCrowdsale', function (accounts) {
 				from: _owner
 			});
 
+			await tokenInstance.pause()
+
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, {
 				from: _owner
 			});
 
 			await tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
+
+			await basicCrowdsaleInstance.addMinter(_owner);
 
 		});
 
@@ -244,6 +253,16 @@ contract('BasicCrowdsale', function (accounts) {
 			}));
 		});
 
+		it('should not allow to transfer tokens during the crowdsale', async function() {
+			await timeTravel(web3, _privateSalePeriod.END + _firstPeriod.END);
+			const weiSent = 1 * weiInEther;
+			await basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: weiSent,
+				from: _wallet
+			});
+			await expectThrow(tokenInstance.transfer(_alice, 2000, {from:_wallet}));
+		});
+
 		it("should convert to second period bonus rate", async function () {
 			await timeTravel(web3, _privateSalePeriod.END + _secondPeriod.END);
 			const weiSent = weiInEther;
@@ -297,7 +316,6 @@ contract('BasicCrowdsale', function (accounts) {
 
 	describe("allowed minters", () => {
 
-
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
@@ -307,17 +325,14 @@ contract('BasicCrowdsale', function (accounts) {
 				from: _owner
 			});
 
+			await tokenInstance.pause()
+
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, {
 				from: _owner
 			});
 
 			await tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
 		});
-
-		it('should set owner as a minter', async function () {
-			let minter = await basicCrowdsaleInstance.minters(_owner);
-			assert.isTrue(minter, "The owner is not set as minter")
-		})
 
 		it('should add minter', async function () {
 			await basicCrowdsaleInstance.addMinter(_alice, {
@@ -393,11 +408,15 @@ contract('BasicCrowdsale', function (accounts) {
 				from: _owner
 			});
 
+			await tokenInstance.pause();
+
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, {
 				from: _owner
 			});
 
 			await tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
+
+			await basicCrowdsaleInstance.addMinter(_owner);
 		});
 
 		it('should create fiat tokens', async function () {
@@ -529,11 +548,15 @@ contract('BasicCrowdsale', function (accounts) {
 				from: _owner
 			});
 
+			await tokenInstance.pause();
+
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, {
 				from: _owner
 			});
 
 			await tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
+
+			await basicCrowdsaleInstance.addMinter(_owner);
 
 		});
 
@@ -736,6 +759,8 @@ contract('BasicCrowdsale', function (accounts) {
 			tokenInstance = await ICOToken.new({
 				from: _owner
 			});
+
+			await tokenInstance.pause();
 
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, {
 				from: _owner
@@ -981,6 +1006,8 @@ contract('BasicCrowdsale', function (accounts) {
 				from: _owner
 			});
 
+			await tokenInstance.pause();
+
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, {
 				from: _owner
 			});
@@ -1037,6 +1064,8 @@ contract('BasicCrowdsale', function (accounts) {
 			tokenInstance = await ICOToken.new({
 				from: _owner
 			});
+
+			await tokenInstance.pause();
 
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, {
 				from: _owner
@@ -1106,12 +1135,6 @@ contract('BasicCrowdsale', function (accounts) {
 			let secondPeriodRate = await basicCrowdsaleInstance.getRate.call();
 			await timeTravel(web3, fourteenDays)
 			let thirdPeriodRate = await basicCrowdsaleInstance.getRate.call();
-
-			// console.log(presalePeriodRate)
-			// console.log(firstPeriodRate)
-			// console.log(secondPeriodRate)
-			// console.log(thirdPeriodRate)
-
 
 			assert(privateSaleRate.eq(_privateSalePeriod.RATE), "The rate is calculated incorrect after default rate has been changed");
 			assert(presalePeriodRate.eq(_presalePeriod.RATE), "The rate is calculated incorrect after default rate has been changed");
@@ -1193,7 +1216,7 @@ contract('BasicCrowdsale', function (accounts) {
 			assert.lengthOf(result.logs, 1, "There should be 1 event emitted from setRate!");
 			assert.strictEqual(result.logs[0].event, expectedEvent, `The event emitted was ${result.logs[0].event} instead of ${expectedEvent}`);
 		});
-	})
+	});
 
 	describe('finalization', () => {
 
@@ -1206,20 +1229,39 @@ contract('BasicCrowdsale', function (accounts) {
 				from: _owner
 			});
 
+			await tokenInstance.pause()
+
 			basicCrowdsaleInstance = await BasicCrowdsale.new(_defaultRate, _wallet, tokenInstance.address, _openingTime, _closingTime, {
 				from: _owner
 			});
 
 			await tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
 
-			await timeTravel(web3, _privateSalePeriod.END + _firstPeriod.END * 0.75);
-			const weiSent = 1 * weiInEther;
+		});
+
+		it('should unpause token', async function() {
+			await timeTravel(web3, _privateSalePeriod.END + _thirdPeriod.END + day);
+			await basicCrowdsaleInstance.finalize();
+			let paused = await tokenInstance.paused.call()
+			assert.isFalse(paused, "The token is not unpaused")
+			
+		});
+
+		it('should allow to transfer token after finalization', async function() {
+			await timeTravel(web3, _privateSalePeriod.END + _thirdPeriod.END);
+			let weiSent = 1 * weiInEther;
 			await basicCrowdsaleInstance.buyTokens(_wallet, {
 				value: weiSent,
 				from: _wallet
-			})
+			});
+			await timeTravel(web3, day);
+			await basicCrowdsaleInstance.finalize();
 
-		});
+			await tokenInstance.transfer(_alice, 20000, {from:_wallet});
+			let balance = await tokenInstance.balanceOf.call(_alice);
+			assert(balance.eq(20000),'The transfer was not successful')
+
+		})
 
 		it("should transfer ownership of the token correctly on time finish", async function () {
 			let initialOwner = await tokenInstance.owner.call();

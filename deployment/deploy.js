@@ -41,7 +41,9 @@ const deploy = async (network, secret) => {
         const deployer = new etherlime.EtherlimeGanacheDeployer();
         deployer.defaultOverrides = defaultConfigs;
 
-        const ICOTokenInstance = await deployer.deploy(ICOToken)
+        const ICOTokenInstance = await deployer.deploy(ICOToken);
+
+        await ICOTokenInstance.contract.pause();
 
         const MultiSigWalletInstance = await deployer.deploy(MultiSigWallet, {}, allAccounts, requiredConfirmations, dailyLimit);
 
@@ -56,6 +58,8 @@ const deploy = async (network, secret) => {
         const deployer = new etherlime.InfuraPrivateKeyDeployer(deployerPrivateKey, config.network, config.infuraApikey, defaultConfigs)
 
         const ICOTokenInstance = await deployer.deploy(ICOToken)
+
+        await ICOTokenInstance.contract.pause()
 
         const MultiSigWalletInstance = await deployer.deploy(MultiSigWallet, {}, allAccounts, requiredConfirmations, dailyLimit);
 

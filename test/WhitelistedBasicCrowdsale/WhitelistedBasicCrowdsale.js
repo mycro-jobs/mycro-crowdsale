@@ -82,11 +82,7 @@ contract('WhitelistedBasicCrowdsale', function (accounts) {
 			});
 
 			await tokenInstance.transferOwnership(whitelistedBasicCrowdsaleInstance.address);
-		})
-
-		it('should set owner as a whitelist manager', async function() {
-			let whitelistManager = await whitelistedBasicCrowdsaleInstance.whitelistManagers(_owner)
-			assert.isTrue(whitelistManager, "The manager is not added")
+			
 		})
 
 		it('should add new whitelist manager', async function() {
@@ -214,6 +210,8 @@ contract('WhitelistedBasicCrowdsale', function (accounts) {
 			});
 
 			await tokenInstance.transferOwnership(whitelistedBasicCrowdsaleInstance.address);
+
+			await whitelistedBasicCrowdsaleInstance.addWhitelistManager(_owner, {from: _owner})
 		})
 
 		it('should buy tokens if benefeiciary is whitelisted', async function(){

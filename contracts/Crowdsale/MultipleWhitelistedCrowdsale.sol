@@ -13,10 +13,6 @@ contract MultipleWhitelistedCrowdsale is Crowdsale, Ownable {
   // keeps all addresses who can manage the whitelist
   mapping(address => bool) public whitelistManagers;
 
-  constructor() public {
-      whitelistManagers[owner] = true;
-  }
-
   /**
    * @dev Reverts if beneficiary is not whitelisted. Can be used when extending this contract.
    */
