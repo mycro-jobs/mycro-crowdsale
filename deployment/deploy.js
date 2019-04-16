@@ -14,8 +14,9 @@ function getFutureTimestamp(plusMinutes) {
     return timestamp;
 }
 
-const rate = 800;
-const crowdsaleDuration = 116 * 24 * 60 * 60; // 116 days
+const rate = 600;
+// !!! to update before deploy
+const crowdsaleDuration = 90 * 24 * 60 * 60; // 90 days
 const openingTime = getFutureTimestamp(1); // 1 minutes from now
 const closingTime = openingTime + crowdsaleDuration;
 

@@ -4,6 +4,7 @@ const web3FutureTime = require('../util').web3FutureTime;
 const expectThrow = require('../util').expectThrow;
 const timeTravel = require("../util").timeTravel;
 
+const BN = require('bn.js');
 
 contract('WhitelistedBasicCrowdsale', function (accounts) {
 
@@ -25,11 +26,12 @@ contract('WhitelistedBasicCrowdsale', function (accounts) {
 	const beneficiaries = [accounts[4],accounts[5],accounts[6], accounts[7], accounts[8]];
 
 	const day = 24 * 60 * 60;
+	const thirtyDays = 30 * day;
 	const sixtyDays = 60 * day;
-	const allDays = 116 * day;
+	const allDays = 90 * day;
 
-	const _defaultRate = 800;
-	const _cap = 100000000 * weiInEther;;
+	const _defaultRate = 600;
+	const _cap = 100000000 * weiInEther;
 
 	describe("initializing crowdsale", () => {
 
@@ -52,13 +54,13 @@ contract('WhitelistedBasicCrowdsale', function (accounts) {
 			let rate = await whitelistedBasicCrowdsaleInstance.rate.call();
 			let cap = await whitelistedBasicCrowdsaleInstance.cap.call();
 			let privateSaleEndDate = await whitelistedBasicCrowdsaleInstance.privateSaleEndDate.call();
-
+			
 			assert(openingTime.eq(_openingTime), "The start time is incorrect");
 			assert(closingTime.eq(_closingTime), "The end time is incorrect");
 			assert(rate.eq(_defaultRate), "The rate is incorrect");
 			assert(cap.eq(_cap), "The rate is incorrect");
 			assert.strictEqual(wallet, _wallet, "The wallet is incorrect");
-			assert(privateSaleEndDate.eq(_openingTime + sixtyDays), 'The end day of the privatesale is incorrect')
+			assert(privateSaleEndDate.eq(_openingTime + thirtyDays), 'The end day of the privatesale is incorrect')
 
 			let token = await whitelistedBasicCrowdsaleInstance.token.call();
 			assert(token.length > 0, "Token length is 0");
@@ -196,8 +198,8 @@ contract('WhitelistedBasicCrowdsale', function (accounts) {
 	describe('whitlisting to buy tokens', () => {
 
 		const _privateSalePeriod = {
-			TIME: 60*day,
-			RATE: 800,
+			TIME: 30*day,
+			RATE: 600,
 			CAP: 26000000 * weiInEther
 		};
 

@@ -19,29 +19,17 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     uint256 constant MAX_CONTRIBUTION_AMOUNT = 250 ether;
 
     uint256 public constant PRIVATE_SALE_CAP = 26000000 * (10 ** 18);
-    uint256 public constant PRIVATE_SALE_DURATION = 60 days;
+    uint256 public constant PRIVATE_SALE_DURATION = 30 days; // to be calculated according to deployment day; the end date should be 30 May
 
-    uint256 public constant PRESALE_CAP = PRIVATE_SALE_CAP + (5000000 * 10 ** 18);
-    uint256 public constant PRESALE_BONUS = 30; // % bonus from default rate
-    uint256 public constant PRESALE_DURATION = 14 days;
- 
-    uint256 public constant PHASE_1_CAP = PRESALE_CAP + (10000000 * 10 ** 18);
-    uint256 public constant PHASE_1_BONUS = 20; // % bonus from default rate
-    uint256 public constant PHASE_1_DURATION = PRESALE_DURATION + 14 days;
-
-    uint256 public constant PHASE_2_CAP = PHASE_1_CAP + (12500000 * 10 ** 18);
-    uint256 public constant PHASE_2_BONUS = 10; // % bonus from default rate
-    uint256 public constant PHASE_2_DURATION = PHASE_1_DURATION + 14 days;
- 
-    uint256 public constant PHASE_3_CAP = PHASE_2_CAP + (12500000 * 10 ** 18);
-    uint256 public constant PHASE_3_BONUS = 5; // % bonus from default rate
-    uint256 public constant PHASE_3_DURATION = PHASE_2_DURATION + 14 days;
+    uint256 public constant MAIN_SALE_DURATION = 60 days;
+    uint256 public mainSaleDurantionExtentionLimit = 120; //max days the duration of the ICO can be extended
 
     event LogFiatTokenMinted(address sender, address beficiary, uint256 amount);
     event LogFiatTokenMintedToMany(address sender, address[] beneficiaries, uint256[] amount);
     event LogBountyTokenMinted(address minter, address beneficiary, uint256 amount);
     event LogBountyTokenMintedToMany(address sender, address[] beneficiaries, uint256[] amount);
     event LogPrivateSaleExtended(uint256 extentionInDays);
+    event LogMainSaleExtended(uint256 extentionInDays);
     event LogRateChanged(uint256 rate);
     event LogMinterAdded(address minterAdded);
     event LogMinterRemoved(address minterRemoved);
@@ -62,49 +50,12 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     function buyTokens(address beneficiary) public payable {
         require(msg.value >= MIN_CONTRIBUTION_AMOUNT);
         require(msg.value <= MAX_CONTRIBUTION_AMOUNT);
+        if(now <= privateSaleEndDate) {
+            require(MintableToken(token).totalSupply() < PRIVATE_SALE_CAP);
+        }
         uint amount = _getTokenAmount(msg.value);
         require(MintableToken(token).totalSupply().add(amount) <= capForSale);
         super.buyTokens(beneficiary);
-    }
-
-    function getRate() public constant returns (uint256) {
-
-        // PrivateSale Period
-        if(now <= privateSaleEndDate) {
-            require(MintableToken(token).totalSupply() < PRIVATE_SALE_CAP);
-            return rate;
-        }
-
-        // Presale Period
-        if(now <= privateSaleEndDate.add(PRESALE_DURATION)){
-            require(MintableToken(token).totalSupply() < PRESALE_CAP);
-            return rate.add(getBonus(PRESALE_BONUS));
-        }
-
-        // First Phase Period
-        if(now <= privateSaleEndDate.add(PHASE_1_DURATION)) {
-            require(MintableToken(token).totalSupply() < PHASE_1_CAP);
-            return rate.add(getBonus(PHASE_1_BONUS));
-        }
-
-        // Second Phase Period
-        if(now <= privateSaleEndDate.add(PHASE_2_DURATION)) {
-            require(MintableToken(token).totalSupply() < PHASE_2_CAP);
-            return rate.add(getBonus(PHASE_2_BONUS));
-        }
-
-        // Third Phase Period
-        return rate.add(getBonus(PHASE_3_BONUS));
-    }
-
-    // calculates the bonus to be added to the default rate accordingly each phase bonusPercent
-    function getBonus(uint _bonusPercent) internal view returns(uint){
-        return rate.mul(_bonusPercent).div(100);
-    }
-
-    function _getTokenAmount(uint256 _weiAmount) internal view returns (uint256) {
-        uint256 _rate = getRate();
-        return _weiAmount.mul(_rate);
     }
 
     function addMinter(address _minter) public onlyOwner {
@@ -170,16 +121,34 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
         require(beneficiaries.length == amount.length);
     }
 
-    function extendPrivateSaleDuration(uint256 extentionInSeconds) public onlyOwner returns (bool) {
+    /**
+        @param extentionInDays is a simple number of the days, e.c. 3 => 3 days
+     */
+    function extendPrivateSaleDuration(uint256 extentionInDays) public onlyOwner returns (bool) {
         require(now <= privateSaleEndDate);
-        privateSaleEndDate = privateSaleEndDate.add(extentionInSeconds);
-        closingTime = closingTime.add(extentionInSeconds);
-        emit LogPrivateSaleExtended(extentionInSeconds);
+        extentionInDays = extentionInDays.mul(1 days); // convert the days in minutes
+        privateSaleEndDate = privateSaleEndDate.add(extentionInDays);
+        closingTime = closingTime.add(extentionInDays);
+        emit LogPrivateSaleExtended(extentionInDays);
+        return true;
+    }
+
+    /**
+        @param extentionInDays is a simple number of the days, e.c. 3 => 3 days
+     */
+    function extendMainSailDuration(uint256 extentionInDays) public onlyOwner returns (bool) {
+        require(now > privateSaleEndDate);
+        require(!hasClosed());
+        require(mainSaleDurantionExtentionLimit > 0);
+        uint256 extention = extentionInDays.mul(1 days); // convert the days in minutes
+        mainSaleDurantionExtentionLimit = mainSaleDurantionExtentionLimit.sub(extentionInDays); // substract days from the limit
+        closingTime = closingTime.add(extention);
+        emit LogMainSaleExtended(extentionInDays);
         return true;
     }
 
     function changeRate(uint _newRate) public onlyOwner returns (bool) {
-        require(now <= privateSaleEndDate);
+        require(!hasClosed());
         require(_newRate != 0);
         rate = _newRate;
         emit LogRateChanged(_newRate);
