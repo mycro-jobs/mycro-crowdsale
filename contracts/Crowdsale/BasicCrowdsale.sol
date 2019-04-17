@@ -22,7 +22,7 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     uint256 public constant PRIVATE_SALE_DURATION = 30 days; // to be calculated according to deployment day; the end date should be 30 May
 
     uint256 public constant MAIN_SALE_DURATION = 60 days;
-    uint256 public mainSaleDurantionExtentionLimit = 120; //max days the duration of the ICO can be extended
+    uint256 public mainSaleDurantionExtentionLimit = 60; //max days the duration of the ICO can be extended
 
     event LogFiatTokenMinted(address sender, address beficiary, uint256 amount);
     event LogFiatTokenMintedToMany(address sender, address[] beneficiaries, uint256[] amount);
@@ -126,7 +126,7 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
      */
     function extendPrivateSaleDuration(uint256 extentionInDays) public onlyOwner returns (bool) {
         require(now <= privateSaleEndDate);
-        extentionInDays = extentionInDays.mul(1 days); // convert the days in minutes
+        extentionInDays = extentionInDays.mul(1 days); // convert the days in milliseconds
         privateSaleEndDate = privateSaleEndDate.add(extentionInDays);
         closingTime = closingTime.add(extentionInDays);
         emit LogPrivateSaleExtended(extentionInDays);
@@ -139,10 +139,12 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     function extendMainSailDuration(uint256 extentionInDays) public onlyOwner returns (bool) {
         require(now > privateSaleEndDate);
         require(!hasClosed());
-        require(mainSaleDurantionExtentionLimit > 0);
-        uint256 extention = extentionInDays.mul(1 days); // convert the days in minutes
+        require(mainSaleDurantionExtentionLimit.sub(extentionInDays) >= 0);
+
+        uint256 extention = extentionInDays.mul(1 days); // convert the days in milliseconds
         mainSaleDurantionExtentionLimit = mainSaleDurantionExtentionLimit.sub(extentionInDays); // substract days from the limit
         closingTime = closingTime.add(extention);
+
         emit LogMainSaleExtended(extentionInDays);
         return true;
     }
