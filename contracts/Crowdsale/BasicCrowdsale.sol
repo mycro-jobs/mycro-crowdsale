@@ -49,10 +49,11 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     function buyTokens(address beneficiary) public payable {
         require(msg.value >= MIN_CONTRIBUTION_AMOUNT);
         require(msg.value <= MAX_CONTRIBUTION_AMOUNT);
-        if(now <= privateSaleEndDate) {
-            require(MintableToken(token).totalSupply() < PRIVATE_SALE_CAP);
-        }
         uint amount = _getTokenAmount(msg.value);
+        if(now <= privateSaleEndDate) {
+            require(MintableToken(token).totalSupply().add(amount) < PRIVATE_SALE_CAP);
+        }
+        
         require(MintableToken(token).totalSupply().add(amount) <= capForSale);
         super.buyTokens(beneficiary);
     }
@@ -116,7 +117,6 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     function multiBeneficiariesValidation(address[] beneficiaries, uint256[] amount) internal view {
         require(!hasClosed());
         require(beneficiaries.length > 0);
-        require(amount.length > 0);
         require(beneficiaries.length == amount.length);
     }
 
@@ -135,7 +135,7 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     /**
         @param extentionInDays is a simple number of the days, e.c. 3 => 3 days
      */
-    function extendMainSailDuration(uint256 extentionInDays) public onlyOwner returns (bool) {
+    function extendMainSaleDuration(uint256 extentionInDays) public onlyOwner returns (bool) {
         require(now > privateSaleEndDate);
         require(!hasClosed());
         require(mainSaleDurationExtentionLimitInDays.sub(extentionInDays) >= 0);

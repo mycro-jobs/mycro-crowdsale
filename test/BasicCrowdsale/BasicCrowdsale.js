@@ -733,7 +733,7 @@ contract('BasicCrowdsale', function (accounts) {
 		it('should allow onlyOwner to extend main sale duration', async () => {
 			let initialDuration = await basicCrowdsaleInstance.closingTime.call();
 			await timeTravel(web3, _privateSalePeriod.END + day);
-			await basicCrowdsaleInstance.extendMainSailDuration(10, {
+			await basicCrowdsaleInstance.extendMainSaleDuration(10, {
 				from: _owner
 			})
 			let newDuration = await basicCrowdsaleInstance.closingTime.call();
@@ -742,51 +742,51 @@ contract('BasicCrowdsale', function (accounts) {
 		})
 
 		it('should revert if not owner tries to extend main sale duration', async () => {
-			await expectThrow(basicCrowdsaleInstance.extendMainSailDuration(10, {
+			await expectThrow(basicCrowdsaleInstance.extendMainSaleDuration(10, {
 				from: _notOwner
 			}))
 		})
 
 		it('should not allow to extend main sale period if it has already expired', async () => {
 			await timeTravel(web3, allDays + day);
-			await expectThrow(basicCrowdsaleInstance.extendMainSailDuration(10, {
+			await expectThrow(basicCrowdsaleInstance.extendMainSaleDuration(10, {
 				from: _owner
 			}));
 		});
 
 		it('should not allow to extend main sale period if we are still in privatesale', async () => {
 			await timeTravel(web3, _privateSalePeriod.END - day);
-			await expectThrow(basicCrowdsaleInstance.extendMainSailDuration(10, {
+			await expectThrow(basicCrowdsaleInstance.extendMainSaleDuration(10, {
 				from: _owner
 			}));
 		});
 
 		it('should not allow to extend main sale period if it has already expired after been extended once', async () => {
 			await timeTravel(web3, allDays - day);
-			await basicCrowdsaleInstance.extendMainSailDuration(10, {
+			await basicCrowdsaleInstance.extendMainSaleDuration(10, {
 				from: _owner
 			});
 			await timeTravel(web3, 12 * day);
 
-			await expectThrow(basicCrowdsaleInstance.extendMainSailDuration(10, {
+			await expectThrow(basicCrowdsaleInstance.extendMainSaleDuration(10, {
 				from: _owner
 			}));
 		});
 
 		it('should not allow to extend main sale period more than 120 days', async () => {
 			await timeTravel(web3, allDays - day);
-			await basicCrowdsaleInstance.extendMainSailDuration(60, {
+			await basicCrowdsaleInstance.extendMainSaleDuration(60, {
 				from: _owner
 			});
 			await timeTravel(web3, 20 * day);
 
-			await basicCrowdsaleInstance.extendMainSailDuration(60, {
+			await basicCrowdsaleInstance.extendMainSaleDuration(60, {
 				from: _owner
 			});
 
 			await timeTravel(web3, 40 * day);
 
-			await expectThrow(basicCrowdsaleInstance.extendMainSailDuration(1, {
+			await expectThrow(basicCrowdsaleInstance.extendMainSaleDuration(1, {
 				from: _owner
 			}));
 
@@ -796,7 +796,7 @@ contract('BasicCrowdsale', function (accounts) {
 			await timeTravel(web3, _privateSalePeriod.END + day);
 			const expectedEvent = 'LogMainSaleExtended';
 
-			let result = await basicCrowdsaleInstance.extendMainSailDuration(10, {
+			let result = await basicCrowdsaleInstance.extendMainSaleDuration(10, {
 				from: _owner
 			});
 			assert.lengthOf(result.logs, 1, "There should be 1 event emitted from setRate!");
