@@ -35,6 +35,12 @@ const defaultConfigs = {
     gasLimit: 4700000
 }
 
+
+let ICOTokenInstance;
+let MultiSigWalletInstance;
+let CrowdsaleInstance;
+
+
 const deploy = async (network, secret) => {
 
     if (config.network === 'local') {
@@ -42,11 +48,11 @@ const deploy = async (network, secret) => {
         const deployer = new etherlime.EtherlimeGanacheDeployer();
         deployer.defaultOverrides = defaultConfigs;
 
-        const ICOTokenInstance = await deployer.deploy(ICOToken)
+        ICOTokenInstance = await deployer.deploy(ICOToken)
 
-        const MultiSigWalletInstance = await deployer.deploy(MultiSigWallet, {}, allAccounts, requiredConfirmations, dailyLimit);
+        MultiSigWalletInstance = await deployer.deploy(MultiSigWallet, {}, allAccounts, requiredConfirmations, dailyLimit);
 
-        const CrowdsaleInstance = await deployer.deploy(WhitelistedBasicCrowdsale, {}, rate, MultiSigWalletInstance.contractAddress, ICOTokenInstance.contractAddress, openingTime, closingTime);
+        CrowdsaleInstance = await deployer.deploy(WhitelistedBasicCrowdsale, {}, rate, MultiSigWalletInstance.contractAddress, ICOTokenInstance.contractAddress, openingTime, closingTime);
 
         await CrowdsaleInstance.contract.transferOwnership(MultiSigWalletInstance.contractAddress);
 
@@ -56,19 +62,34 @@ const deploy = async (network, secret) => {
     } else {
         const deployer = new etherlime.InfuraPrivateKeyDeployer(deployerPrivateKey, config.network, config.infuraApikey, defaultConfigs)
 
-        const ICOTokenInstance = await deployer.deploy(ICOToken)
+        ICOTokenInstance = await deployer.deploy(ICOToken)
 
-        const MultiSigWalletInstance = await deployer.deploy(MultiSigWallet, {}, allAccounts, requiredConfirmations, dailyLimit);
+        MultiSigWalletInstance = await deployer.deploy(MultiSigWallet, {}, allAccounts, requiredConfirmations, dailyLimit);
         
-        const CrowdsaleInstance = await deployer.deploy(WhitelistedBasicCrowdsale, {}, rate, MultiSigWalletInstance.contractAddress, ICOTokenInstance.contractAddress, openingTime, closingTime);
+        CrowdsaleInstance = await deployer.deploy(WhitelistedBasicCrowdsale, {}, rate, MultiSigWalletInstance.contractAddress, ICOTokenInstance.contractAddress, openingTime, closingTime);
 
-        const transferTransaction = await CrowdsaleInstance.contract.transferOwnership(MultiSigWalletInstance.contractAddress);
-
-        const result = await CrowdsaleInstance.verboseWaitForTransaction(transferTransaction, 'Transfer Ownership');
+        let tokenOwnershipTransaction = await ICOTokenInstance.contract.transferOwnership(CrowdsaleInstance.contractAddress);
+        await ICOTokenInstance.verboseWaitForTransaction(tokenOwnershipTransaction, "Transfer Ownership of Token")
         
 
-        // TODO manually after deployment of the contracts
-        // await ICOTokenInstance.contract.transferOwnership(CrowdsaleInstance.contractAddress);
+        //TODO manually after deployment of the contracts
+        // const ICOTokenInstanceAddress = ''
+        // const MultiSigWalletInstanceAddress = ''
+        // const CrowdsaleInstanceAddress = ''
+
+        // // scripts to add andre_wallet_1
+        // CrowdsaleInstance = await deployer.wrapDeployedContract(WhitelistedBasicCrowdsale, CrowdsaleInstanceAddress);
+        // const minterOneTransaction = await CrowdsaleInstance.addMinter(''); //andre_wallet_1
+        // await CrowdsaleInstance.verboseWaitForTransaction(minterOneTransaction, 'Add first minter');
+
+
+        // // scripts to add andre_wallet_2
+        // const minterTwoTransaction = await CrowdsaleInstance.addMinter(''); //andre_wallet_2
+        // await CrowdsaleInstance.verboseWaitForTransaction(minterTwoTransaction, 'Add second minter');
+
+        // // scripts to transfer the ownership of the Crowdsale to multiSig wallet
+        // const transferTransaction = await CrowdsaleInstance.contract.transferOwnership(MultiSigWalletInstanceAddress);
+        // const result = await CrowdsaleInstance.verboseWaitForTransaction(transferTransaction, 'Transfer Ownership');
     
     }
 
