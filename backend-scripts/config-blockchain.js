@@ -1,4 +1,4 @@
-const config = require('../deployment/config.json');
+const config = require('./config.json');
 const ethers = require('ethers');
 
 const WhitelistedBasicCrowdsaleAbi = require('./contracts-abi/WhitelistedBasicCrowdsale.json').abi;

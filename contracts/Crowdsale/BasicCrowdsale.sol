@@ -19,10 +19,10 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     uint256 constant MAX_CONTRIBUTION_AMOUNT = 250 ether;
 
     uint256 public constant PRIVATE_SALE_CAP = 26000000 * (10 ** 18);
-    uint256 public constant PRIVATE_SALE_DURATION = 30 days; // to be calculated according to deployment day; the end date should be 30 May
+    uint256 public constant PRIVATE_SALE_DURATION = 24 days; // to be calculated according to deployment day; the end date should be 15 May
 
     uint256 public constant MAIN_SALE_DURATION = 60 days;
-    uint256 public mainSaleDurantionExtentionLimit = 60; //max days the duration of the ICO can be extended
+    uint256 public mainSaleDurationExtentionLimitInDays = 120; //max days the duration of the ICO can be extended
 
     event LogFiatTokenMinted(address sender, address beficiary, uint256 amount);
     event LogFiatTokenMintedToMany(address sender, address[] beneficiaries, uint256[] amount);
@@ -37,7 +37,6 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     constructor(uint256 _rate, address _wallet, address _token, uint256 _openingTime, uint256 _closingTime)
     Crowdsale(_rate, _wallet, ERC20(_token))
     TimedCrowdsale(_openingTime, _closingTime) public {
-        minters[owner] = true;
         privateSaleEndDate = _openingTime.add(PRIVATE_SALE_DURATION);
     }
 
@@ -126,7 +125,7 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
      */
     function extendPrivateSaleDuration(uint256 extentionInDays) public onlyOwner returns (bool) {
         require(now <= privateSaleEndDate);
-        extentionInDays = extentionInDays.mul(1 days); // convert the days in milliseconds
+        extentionInDays = extentionInDays.mul(1 days); // convert the days in seconds
         privateSaleEndDate = privateSaleEndDate.add(extentionInDays);
         closingTime = closingTime.add(extentionInDays);
         emit LogPrivateSaleExtended(extentionInDays);
@@ -139,10 +138,10 @@ contract BasicCrowdsale is MintedCrowdsale, FinalizableCrowdsale {
     function extendMainSailDuration(uint256 extentionInDays) public onlyOwner returns (bool) {
         require(now > privateSaleEndDate);
         require(!hasClosed());
-        require(mainSaleDurantionExtentionLimit.sub(extentionInDays) >= 0);
+        require(mainSaleDurationExtentionLimitInDays.sub(extentionInDays) >= 0);
 
-        uint256 extention = extentionInDays.mul(1 days); // convert the days in milliseconds
-        mainSaleDurantionExtentionLimit = mainSaleDurantionExtentionLimit.sub(extentionInDays); // substract days from the limit
+        uint256 extention = extentionInDays.mul(1 days); // convert the days in seconds
+        mainSaleDurationExtentionLimitInDays = mainSaleDurationExtentionLimitInDays.sub(extentionInDays); // substract days from the limit
         closingTime = closingTime.add(extention);
 
         emit LogMainSaleExtended(extentionInDays);
