@@ -25,7 +25,7 @@ contract('BasicCrowdsale', function (accounts) {
 	const thirtyDays = 30 * day;
 	const fiftyDays = 50 * day;
 	const sixtyDays = 60 * day;
-	const ninetyDays = 90 * day;
+	const allDays = 84 * day;
 
 	const minWeiAmount = 0.01 * weiInEther;
 	const maxWeiAmount = 250 * weiInEther;
@@ -37,7 +37,7 @@ contract('BasicCrowdsale', function (accounts) {
 	const _capForSale = 71000000 * weiInEther;
 
 	const _privateSalePeriod = {
-		END: thirtyDays,
+		END: 24 * day,
 		CAP: 26000000 * weiInEther
 	}
 
@@ -50,7 +50,7 @@ contract('BasicCrowdsale', function (accounts) {
 
 		it("should set initial values correctly", async function () {
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -84,7 +84,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -120,7 +120,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -165,6 +165,7 @@ contract('BasicCrowdsale', function (accounts) {
 		})
 
 		it('should revert if privateSale cap is reached', async function () {
+			await basicCrowdsaleInstance.addMinter(_owner, {from: _owner});
 			await timeTravel(web3, _privateSalePeriod.END);
 
 			await basicCrowdsaleInstance.createFiatToken(_wallet, _privateSalePeriod.CAP);
@@ -188,6 +189,7 @@ contract('BasicCrowdsale', function (accounts) {
 		});
 
 		it('should throw if hard capForSale is reached', async function () {
+			await basicCrowdsaleInstance.addMinter(_owner, {from: _owner});
 			await timeTravel(web3, _privateSalePeriod.END + tenDays);
 
 			await basicCrowdsaleInstance.createFiatToken(_wallet, _capForSale);
@@ -199,6 +201,19 @@ contract('BasicCrowdsale', function (accounts) {
 
 		});
 
+		it('should allow to transfer token during crowdsale', async function() {
+			await timeTravel(web3, _privateSalePeriod.END);
+			await basicCrowdsaleInstance.buyTokens(_wallet, {
+				value: weiInEther,
+				from: _wallet
+			});
+
+			await tokenInstance.transfer(_alice, 2000, {from: _wallet})
+			let aliceBalance = await tokenInstance.balanceOf.call(_alice);
+
+			assert(aliceBalance.eq(2000), 'The balance not correct based on what was transferred to Alice')
+		})
+
 	});
 
 	describe("allowed minters", () => {
@@ -207,7 +222,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -220,10 +235,6 @@ contract('BasicCrowdsale', function (accounts) {
 			await tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
 		});
 
-		it('should set owner as a minter', async function () {
-			let minter = await basicCrowdsaleInstance.minters(_owner);
-			assert.isTrue(minter, "The owner is not set as minter")
-		})
 
 		it('should add minter', async function () {
 			await basicCrowdsaleInstance.addMinter(_alice, {
@@ -293,7 +304,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -304,6 +315,8 @@ contract('BasicCrowdsale', function (accounts) {
 			});
 
 			await tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
+
+			await basicCrowdsaleInstance.addMinter(_owner, {from: _owner})
 		});
 
 		it('should create fiat tokens', async function () {
@@ -429,7 +442,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -440,6 +453,8 @@ contract('BasicCrowdsale', function (accounts) {
 			});
 
 			await tokenInstance.transferOwnership(basicCrowdsaleInstance.address);
+
+			await basicCrowdsaleInstance.addMinter(_owner, {from:_owner});
 
 		});
 
@@ -637,7 +652,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -702,7 +717,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = await web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -733,7 +748,7 @@ contract('BasicCrowdsale', function (accounts) {
 		})
 
 		it('should not allow to extend main sale period if it has already expired', async () => {
-			await timeTravel(web3, ninetyDays + day);
+			await timeTravel(web3, allDays + day);
 			await expectThrow(basicCrowdsaleInstance.extendMainSailDuration(10, {
 				from: _owner
 			}));
@@ -747,7 +762,7 @@ contract('BasicCrowdsale', function (accounts) {
 		});
 
 		it('should not allow to extend main sale period if it has already expired after been extended once', async () => {
-			await timeTravel(web3, ninetyDays - day);
+			await timeTravel(web3, allDays - day);
 			await basicCrowdsaleInstance.extendMainSailDuration(10, {
 				from: _owner
 			});
@@ -758,14 +773,14 @@ contract('BasicCrowdsale', function (accounts) {
 			}));
 		});
 
-		it('should not allow to extend main sale period more than 60 days', async () => {
-			await timeTravel(web3, ninetyDays - day);
-			await basicCrowdsaleInstance.extendMainSailDuration(20, {
+		it('should not allow to extend main sale period more than 120 days', async () => {
+			await timeTravel(web3, allDays - day);
+			await basicCrowdsaleInstance.extendMainSailDuration(60, {
 				from: _owner
 			});
 			await timeTravel(web3, 20 * day);
 
-			await basicCrowdsaleInstance.extendMainSailDuration(40, {
+			await basicCrowdsaleInstance.extendMainSailDuration(60, {
 				from: _owner
 			});
 
@@ -795,7 +810,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -819,7 +834,7 @@ contract('BasicCrowdsale', function (accounts) {
 		})
 
 		it('should not allow to buy tokens if closingTime is over', async function () {
-			await timeTravel(web3, _privateSalePeriod.END + sixtyDays + day)
+			await timeTravel(web3, allDays + day)
 
 			await expectThrow(basicCrowdsaleInstance.buyTokens(_wallet, {
 				value: weiInEther,
@@ -832,7 +847,7 @@ contract('BasicCrowdsale', function (accounts) {
 			await basicCrowdsaleInstance.extendPrivateSaleDuration(10, {
 				from: _owner
 			});
-			await timeTravel(web3, ninetyDays + day);
+			await timeTravel(web3, allDays + day);
 			await basicCrowdsaleInstance.buyTokens(_wallet, {
 				value: weiInEther,
 				from: _wallet
@@ -848,7 +863,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
@@ -904,7 +919,7 @@ contract('BasicCrowdsale', function (accounts) {
 		beforeEach(async function () {
 
 			_openingTime = web3FutureTime(web3);
-			_closingTime = _openingTime + ninetyDays;
+			_closingTime = _openingTime + allDays;
 
 			tokenInstance = await ICOToken.new({
 				from: _owner
