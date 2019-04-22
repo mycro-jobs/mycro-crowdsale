@@ -18,11 +18,11 @@
     {
       "constant": true,
       "inputs": [],
-      "name": "hasClosed",
+      "name": "mainSaleDurantionExtentionLimit",
       "outputs": [
         {
           "name": "",
-          "type": "bool"
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -432,17 +432,22 @@
       "type": "function"
     },
     {
-      "constant": true,
-      "inputs": [],
-      "name": "openingTime",
-      "outputs": [
+      "constant": false,
+      "inputs": [
         {
-          "name": "",
+          "name": "extentionInDays",
           "type": "uint256"
         }
       ],
+      "name": "extendMainSailDuration",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
