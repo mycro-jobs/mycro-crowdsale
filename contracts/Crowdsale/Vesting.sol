@@ -10,6 +10,7 @@ contract Vesting {
     ERC20 public mycroToken;
 
     event LogFreezedTokensToInvestor(address _investorAddress, uint256 _tokenAmount, uint256 _daysToFreeze);
+    event LogUpdatedTokensToInvestor(address _investorAddress, uint256 _tokenAmount);
     event LogWithdraw(address _investorAddress, uint256 _tokenAmount);
 
     constructor(address _token) public {
@@ -33,17 +34,23 @@ contract Vesting {
     function freezeTokensToInvestor(address _investorAddress, uint256 _tokenAmount, uint256 _daysToFreeze) public returns (bool) {
         require(_investorAddress != address(0));
         require(_tokenAmount != 0);
+        require(!investors[_investorAddress].isInvestor);
 
         _daysToFreeze = _daysToFreeze.mul(1 days); // converts days into seconds
         
-        if(investors[_investorAddress].isInvestor) {
-            updateInvestor(_investorAddress, _tokenAmount, _daysToFreeze);
-        } else {
-            investors[_investorAddress] = Investor({tokenAmount: _tokenAmount, frozenPeriod: now.add(_daysToFreeze), isInvestor: true});
-        }
-
+        investors[_investorAddress] = Investor({tokenAmount: _tokenAmount, frozenPeriod: now.add(_daysToFreeze), isInvestor: true});
+        
         mycroToken.transferFrom(msg.sender, address(this), _tokenAmount);
         emit LogFreezedTokensToInvestor(_investorAddress, _tokenAmount, _daysToFreeze);
+    }
+
+     function updateTokensToInvestor(address _investorAddress, uint256 _tokenAmount) public returns(bool) {
+        require(investors[_investorAddress].isInvestor);
+        Investor storage currentInvestor = investors[_investorAddress];
+        currentInvestor.tokenAmount = currentInvestor.tokenAmount.add(_tokenAmount);
+
+        mycroToken.transferFrom(msg.sender, address(this), _tokenAmount);
+        emit LogUpdatedTokensToInvestor(_investorAddress, _tokenAmount);
     }
 
     function withdraw(uint256 _tokenAmount) public {
@@ -57,12 +64,6 @@ contract Vesting {
         currentInvestor.tokenAmount = currentInvestor.tokenAmount.sub(_tokenAmount);
         mycroToken.transfer(investorAddress, _tokenAmount);
         emit LogWithdraw(investorAddress, _tokenAmount);
-    }
-
-    function updateInvestor(address _investorAddress, uint256 _tokenAmount, uint256 _daysToFreeze) internal {
-        Investor storage currentInvestor = investors[_investorAddress];
-        currentInvestor.tokenAmount = currentInvestor.tokenAmount.add(_tokenAmount);
-        currentInvestor.frozenPeriod = currentInvestor.frozenPeriod.add(_daysToFreeze);
     }
 
 
