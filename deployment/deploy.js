@@ -4,6 +4,8 @@ const config = require("./config");
 const ICOToken = require('../build/ICOToken.json');
 const WhitelistedBasicCrowdsale = require('../build/WhitelistedBasicCrowdsale.json');
 const MultiSigWallet = require('../build/MultiSigWalletWithDailyLimit.json');
+const VestingContract = require('../build/Vesting.json');
+
 const deployerPrivateKey = ""; // TODO add key
 
 function getFutureTimestamp(plusMinutes) {
@@ -34,7 +36,7 @@ const dailyLimit = 0;
 const defaultConfigs = {
     gasPrice: 4000000000, // 4 gwei
     gasLimit: 4700000
-}
+};
 
 
 let ICOTokenInstance;
@@ -49,7 +51,7 @@ const deploy = async (network, secret) => {
         const deployer = new etherlime.EtherlimeGanacheDeployer();
         deployer.defaultOverrides = defaultConfigs;
 
-        ICOTokenInstance = await deployer.deploy(ICOToken)
+        ICOTokenInstance = await deployer.deploy(ICOToken);
 
         MultiSigWalletInstance = await deployer.deploy(MultiSigWallet, {}, allAccounts, requiredConfirmations, dailyLimit);
 
@@ -63,6 +65,8 @@ const deploy = async (network, secret) => {
     } else {
         const deployer = new etherlime.InfuraPrivateKeyDeployer(deployerPrivateKey, config.network, config.infuraApikey, defaultConfigs);
 
+        // Contract deployments
+        //
         // ICOTokenInstance = await deployer.deploy(ICOToken);
         //
         // MultiSigWalletInstance = await deployer.deploy(MultiSigWallet, {}, allAccounts, requiredConfirmations, dailyLimit);
@@ -71,31 +75,38 @@ const deploy = async (network, secret) => {
         //
         // let tokenOwnershipTransaction = await ICOTokenInstance.contract.transferOwnership(CrowdsaleInstance.contractAddress, defaultConfigs);
         // await ICOTokenInstance.verboseWaitForTransaction(tokenOwnershipTransaction, "Transfer Ownership of Token")
-        
 
-        //TODO manually after deployment of the contracts
+        // Contract addresses after deployments
+
         const ICOTokenInstanceAddress = '0x50987e6BE405ebac691f8988304562E5efc3B2ea';
-        const MultiSigWalletInstanceAddress = '0xf603B0226B2901464E6833d1424340547Ac0bcE3';
-        const CrowdsaleInstanceAddress = '0x9E2De29Ba408F7aD0a014164E5FCA0d2d5A45B1a';
+        // const MultiSigWalletInstanceAddress = '0xf603B0226B2901464E6833d1424340547Ac0bcE3';
+        // const CrowdsaleInstanceAddress = '0x9E2De29Ba408F7aD0a014164E5FCA0d2d5A45B1a';
 
-        // scripts to add andre_wallet_1
-        CrowdsaleInstance = await deployer.wrapDeployedContract(WhitelistedBasicCrowdsale, CrowdsaleInstanceAddress);
-        // const minterOneTransaction = await CrowdsaleInstance.contract.addMinter(ANDRE_ACCOUNT_1, defaultConfigs); // Andre ledger wallet
-        // await CrowdsaleInstance.verboseWaitForTransaction(minterOneTransaction, 'Add first minter');
+        // Vesting(Lockup contract) deployment
+        //
+        let VestingInstance = await deployer.deploy(VestingContract, {}, ICOTokenInstanceAddress);
 
-
-        // scripts to add andre_wallet_2
-        const minterTwoTransaction = await CrowdsaleInstance.contract.addMinter(MultiSigWalletInstanceAddress, defaultConfigs);
-        await CrowdsaleInstance.verboseWaitForTransaction(minterTwoTransaction, 'Add second minter'); // Multisig wallet address
-
-        // scripts to transfer the ownership of the Crowdsale to multiSig wallet
-        const transferTransaction = await CrowdsaleInstance.contract.transferOwnership(MultiSigWalletInstanceAddress, defaultConfigs);
-        const result = await CrowdsaleInstance.verboseWaitForTransaction(transferTransaction, 'Transfer Ownership');
+        //Manual steps after deployment of the contracts
+        //
+        // // scripts to add andre_wallet_1
+        // CrowdsaleInstance = await deployer.wrapDeployedContract(WhitelistedBasicCrowdsale, CrowdsaleInstanceAddress);
+        // // const minterOneTransaction = await CrowdsaleInstance.contract.addMinter(ANDRE_ACCOUNT_1, defaultConfigs); // Andre ledger wallet
+        // // await CrowdsaleInstance.verboseWaitForTransaction(minterOneTransaction, 'Add first minter');
+        //
+        //
+        // // scripts to add andre_wallet_2
+        // const minterTwoTransaction = await CrowdsaleInstance.contract.addMinter(MultiSigWalletInstanceAddress, defaultConfigs);
+        // await CrowdsaleInstance.verboseWaitForTransaction(minterTwoTransaction, 'Add second minter'); // Multisig wallet address
+        //
+        // // scripts to transfer the ownership of the Crowdsale to multiSig wallet
+        // const transferTransaction = await CrowdsaleInstance.contract.transferOwnership(MultiSigWalletInstanceAddress, defaultConfigs);
+        // const result = await CrowdsaleInstance.verboseWaitForTransaction(transferTransaction, 'Transfer Ownership');
     
     }
 
-}
+};
 
 module.exports = {
     deploy
-}
+};
+

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 import 'zeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
@@ -40,8 +40,10 @@ contract Vesting {
         
         investors[_investorAddress] = Investor({tokenAmount: _tokenAmount, frozenPeriod: now.add(_daysToFreeze), isInvestor: true});
         
-        mycroToken.transferFrom(msg.sender, address(this), _tokenAmount);
+        require(mycroToken.transferFrom(msg.sender, address(this), _tokenAmount));
         emit LogFreezedTokensToInvestor(_investorAddress, _tokenAmount, _daysToFreeze);
+
+        return true;
     }
 
      function updateTokensToInvestor(address _investorAddress, uint256 _tokenAmount) public returns(bool) {
@@ -49,7 +51,7 @@ contract Vesting {
         Investor storage currentInvestor = investors[_investorAddress];
         currentInvestor.tokenAmount = currentInvestor.tokenAmount.add(_tokenAmount);
 
-        mycroToken.transferFrom(msg.sender, address(this), _tokenAmount);
+        require(mycroToken.transferFrom(msg.sender, address(this), _tokenAmount));
         emit LogUpdatedTokensToInvestor(_investorAddress, _tokenAmount);
     }
 
@@ -62,7 +64,7 @@ contract Vesting {
         require(_tokenAmount <= currentInvestor.tokenAmount);
 
         currentInvestor.tokenAmount = currentInvestor.tokenAmount.sub(_tokenAmount);
-        mycroToken.transfer(investorAddress, _tokenAmount);
+        require(mycroToken.transfer(investorAddress, _tokenAmount));
         emit LogWithdraw(investorAddress, _tokenAmount);
     }
 
