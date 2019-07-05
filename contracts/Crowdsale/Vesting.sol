@@ -53,6 +53,8 @@ contract Vesting {
 
         require(mycroToken.transferFrom(msg.sender, address(this), _tokenAmount));
         emit LogUpdatedTokensToInvestor(_investorAddress, _tokenAmount);
+
+        return true;
     }
 
     function withdraw(uint256 _tokenAmount) public {
